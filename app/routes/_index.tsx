@@ -11,7 +11,7 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export default function Home() {
+export default function Page() {
   return (
     <>
       <header className="sticky top-0 flex items-center px-4 py-2 shadow-md">
@@ -42,13 +42,14 @@ export default function Home() {
             accomplish it all with Trellix.
           </p>
         </div>
-        <img
-          className="w-full flex-1"
-          src={HomeIllustration}
-          alt="Home illustration"
-          decoding="async"
-          loading="lazy"
-        />
+        <div className="w-full flex-1">
+          <img
+            src={HomeIllustration}
+            alt="Home illustration"
+            decoding="async"
+            loading="lazy"
+          />
+        </div>
       </main>
     </>
   );
