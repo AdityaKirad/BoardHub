@@ -5,3 +5,8 @@
 # React Router
 /.react-router/
 /build/
+db.sqlite
+entry.server.tsx
+entry.client.tsx
+mockServiceWorker.js
+mocks

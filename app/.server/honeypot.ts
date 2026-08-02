@@ -1,14 +1,16 @@
 import { Honeypot, SpamError } from "remix-utils/honeypot/server";
+import { env } from "~/env.server";
 
 export const honeypot = new Honeypot({
-  encryptionSeed: process.env.HONEYPOT_SEED,
+  encryptionSeed: env.HONEYPOT_SEED,
 });
 
-export function checkHoneyPot(formData: FormData) {
+export async function checkHoneyPot(formData: FormData) {
   try {
-    honeypot.check(formData);
-  } catch (error) {
+    await honeypot.check(formData);
+  } catch (error: unknown) {
     if (error instanceof SpamError) {
+      // eslint-disable-next-line @typescript-eslint/only-throw-error
       throw new Response("Form not submitted properly", { status: 400 });
     }
     throw error;

@@ -1,15 +1,15 @@
 import { Outlet } from "react-router";
 import { AppLogo } from "~/components/icons/app-logo";
-import AuthIllustration1 from "~/assets/auth-illustration-1.jpg";
+import AuthIllustration1 from "~/assets/auth-illustration-1.webp";
 import AuthIllustration2 from "~/assets/auth-illustration-2.webp";
 
 export default function Layout() {
   return (
     <main className="relative grid place-items-center sm:h-dvh">
-      <div className="bg-background z-10 flex w-full max-w-96 flex-col gap-4 rounded-sm p-8 sm:shadow-lg">
+      <div className="bg-background z-10 flex w-full max-w-100 flex-col gap-2 rounded-sm p-8 sm:shadow-lg">
         <div className="flex items-center justify-center gap-2 text-3xl font-bold text-blue-950">
           <AppLogo />
-          Trellix
+          BoardHub
         </div>
         <Outlet />
       </div>

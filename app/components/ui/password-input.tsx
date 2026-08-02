@@ -9,9 +9,8 @@ const PasswordInput = forwardRef<
   const [visible, visibleSet] = useState(false);
   return (
     <div
-      className="border-input ring-offset-background focus-within:ring-ring flex h-10 items-center gap-2 rounded-md border px-3 py-2 focus-within:ring-2 focus-within:ring-offset-2"
-      data-slot="password-input"
-    >
+      className="border-input ring-offset-background focus-within:border-ring focus-within:ring-ring/50 [&>input:aria-invalid]:border-destructive [&>input:aria-invalid]:ring-destructive/20 dark:bg-input/30 dark:[&>input:aria-invalid]:border-destructive/50 dark:[&>input:aria-invalid]:ring-destructive/40 flex h-8 items-center gap-2 rounded-lg border px-2.5 transition-colors focus-within:ring-3 [&>input:aria-invalid]:ring-3"
+      data-slot="password-input">
       <input
         className={cn(
           "placeholder:text-muted-foreground w-full bg-transparent text-sm outline-none",
@@ -29,8 +28,7 @@ const PasswordInput = forwardRef<
         className="ring-offset-background focus-visible:ring-ring rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
         onClick={() => visibleSet((prevState) => !prevState)}
         title={visible ? "Hide" : "Reveal"}
-        type="button"
-      >
+        type="button">
         {visible ? (
           <>
             <EyeOff aria-hidden={true} />

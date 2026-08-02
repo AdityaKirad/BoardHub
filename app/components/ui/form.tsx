@@ -1,9 +1,11 @@
-import { useId, useRef } from "react";
+import { useId } from "react";
 import { Input } from "./input";
 import { Label } from "./label";
 import { PasswordInput } from "./password-input";
+import { REGEXP_ONLY_DIGITS_AND_CHARS, type OTPInputProps } from "input-otp";
+import { InputOTP, InputOTPSlot } from "./input-otp";
 
-type ErrorListType = Array<string | null | undefined> | null | undefined;
+type ErrorListType = (string | null | undefined)[] | null | undefined;
 
 export function ErrorList({
   errors,
@@ -29,10 +31,12 @@ export function Field({
   inputProps,
   labelProps,
   errors,
+  children,
 }: {
-  errors?: ErrorListType;
   inputProps: React.InputHTMLAttributes<HTMLInputElement>;
   labelProps?: React.LabelHTMLAttributes<HTMLLabelElement>;
+  errors?: ErrorListType;
+  children?: React.ReactNode;
 }) {
   const fallbackId = useId();
   const id = inputProps.id ?? fallbackId;
@@ -55,6 +59,39 @@ export function Field({
           {...inputProps}
         />
       )}
+      <ErrorList errors={errors} id={errorId} />
+      {children}
+    </div>
+  );
+}
+
+export function OTPField({
+  inputProps,
+  errors,
+}: {
+  inputProps: Partial<OTPInputProps & { render: never }>;
+  errors?: ErrorListType;
+}) {
+  const fallbackId = useId();
+  const id = inputProps.id ?? fallbackId;
+  const errorId = id ? `${id}-error` : undefined;
+  return (
+    <div className="space-y-1">
+      <InputOTP
+        containerClassName="gap-2"
+        id={id}
+        maxLength={6}
+        pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
+        aria-describedby={errorId}
+        aria-invalid={errorId ? true : undefined}
+        {...inputProps}>
+        <InputOTPSlot className="aspect-square h-full flex-1" index={0} />
+        <InputOTPSlot className="aspect-square h-full flex-1" index={1} />
+        <InputOTPSlot className="aspect-square h-full flex-1" index={2} />
+        <InputOTPSlot className="aspect-square h-full flex-1" index={3} />
+        <InputOTPSlot className="aspect-square h-full flex-1" index={4} />
+        <InputOTPSlot className="aspect-square h-full flex-1" index={5} />
+      </InputOTP>
       <ErrorList errors={errors} id={errorId} />
     </div>
   );
