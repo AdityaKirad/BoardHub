@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
-import { and, eq, gt, inArray, sql } from "drizzle-orm";
+import { and, eq, gt, inArray } from "drizzle-orm";
 import { createCookie } from "react-router";
 import { getClientIPAddress } from "remix-utils/get-client-ip-address";
 import { generateRandomString } from "~/server/crypto/random-string";
@@ -55,8 +55,6 @@ export async function createSession(
 export async function getUsers(request: Request) {
   const cookie = request.headers.get("cookie");
 
-  const activeSessionToken = await sessionCookie.parse(cookie);
-
   const cookies = parseCookies(cookie ?? "");
 
   const headers = new Headers();
@@ -85,25 +83,19 @@ export async function getUsers(request: Request) {
 
   const sessions = await db
     .select({
-      active: sql<boolean>`${session.token} = ${activeSessionToken}`,
-      session: {
-        id: session.id,
-        token: session.token,
-      },
+      token: session.token,
       user: {
         id: user.id,
         name: user.name,
-        username: user.username,
+        email: user.email,
         photo: user.photo,
-        verified: user.verified,
       },
     })
     .from(session)
     .where(
       and(inArray(session.token, tokens), gt(session.expiresAt, new Date())),
     )
-    .innerJoin(user, eq(session.userId, user.id))
-    .orderBy(sql`1 DESC`);
+    .innerJoin(user, eq(session.userId, user.id));
 
   return {
     headers,

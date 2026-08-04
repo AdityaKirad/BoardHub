@@ -7,7 +7,7 @@ import {
   type SessionSelectType,
   type UserInsertType,
   type UserSelectType,
-} from "~/server/db/schema";
+} from "~/.server/db/schema/auth";
 import { parseCookies } from "~/.server/parse-cookies";
 import { createSession, MAX_SESSIONS } from "~/server/session";
 import { generateUsernameSuggestions } from "~/.server/username";

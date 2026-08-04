@@ -1,5 +1,5 @@
 import { db } from "~/server/db";
-import { account, user } from "~/server/db/schema";
+import { account, user } from "~/.server/db/schema/auth";
 import { createSession } from "~/server/session";
 import { generateUsernameSuggestions } from "~/.server/username";
 import type { OAuthProfile } from "./types";

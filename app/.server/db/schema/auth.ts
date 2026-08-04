@@ -25,10 +25,7 @@ const timestamps = {
 };
 
 export const user = sqliteTable("user", {
-  id: text()
-    .notNull()
-    .primaryKey()
-    .$defaultFn(() => createId()),
+  id: text().notNull().primaryKey().$defaultFn(createId),
   name: text().notNull(),
   email: text().notNull().unique(),
   username: text().notNull().unique(),
@@ -41,10 +38,7 @@ export const user = sqliteTable("user", {
 export const account = sqliteTable(
   "account",
   {
-    id: text()
-      .notNull()
-      .primaryKey()
-      .$defaultFn(() => createId()),
+    id: text().notNull().primaryKey().$defaultFn(createId),
     userId: text()
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
@@ -64,10 +58,7 @@ export const account = sqliteTable(
 );
 
 export const verification = sqliteTable("verification", {
-  id: text()
-    .notNull()
-    .primaryKey()
-    .$defaultFn(() => createId()),
+  id: text().notNull().primaryKey().$defaultFn(createId),
   identifier: text().notNull().unique(),
   value: text().notNull(),
   ...timestamps,
@@ -76,10 +67,7 @@ export const verification = sqliteTable("verification", {
 export const session = sqliteTable(
   "session",
   {
-    id: text()
-      .notNull()
-      .primaryKey()
-      .$defaultFn(() => createId()),
+    id: text().notNull().primaryKey().$defaultFn(createId),
     userId: text()
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),

@@ -7,7 +7,7 @@ import {
   oauthCodeVerifierCookie,
   oauthStateCookie,
 } from "~/server/cookies";
-import { handleNewSession } from "./_auth+/login.server";
+import { handleNewSession } from "./login.server";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const provider = providers[params.provider];

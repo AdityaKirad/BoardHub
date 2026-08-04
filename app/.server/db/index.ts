@@ -2,12 +2,13 @@ import type { Logger } from "drizzle-orm/logger";
 import type { LibSQLDatabase } from "drizzle-orm/libsql";
 import { drizzle } from "drizzle-orm/libsql";
 import { createClient, type Client, type ResultSet } from "@libsql/client";
-import * as schema from "./schema";
+import * as authSchema from "./schema/auth";
+import * as workspaceSchema from "./schema/workspace";
 import { env } from "~/env.server";
 import type { SQLiteTransaction } from "drizzle-orm/sqlite-core";
 import type { ExtractTablesWithRelations } from "drizzle-orm";
 
-type Schema = typeof schema;
+type Schema = typeof authSchema & typeof workspaceSchema;
 
 class MyLogger implements Logger {
   logQuery(query: string, params: unknown[]): void {
@@ -28,7 +29,13 @@ const client =
 
 if (env.NODE_ENV !== "production") globalForClient.client = client;
 
-export const db = drizzle(client, { schema, logger: new MyLogger() });
+export const db = drizzle(client, {
+  schema: {
+    ...authSchema,
+    ...workspaceSchema,
+  },
+  logger: new MyLogger(),
+});
 
 export type DBAdapter =
   | (LibSQLDatabase<Schema> & { $client: Client })
@@ -39,4 +46,4 @@ export type DBAdapter =
       ExtractTablesWithRelations<Schema>
     >;
 
-export * from "./schema";
+export * from "./schema/auth";

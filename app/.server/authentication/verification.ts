@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { generateRandomString } from "~/server/crypto/random-string";
 import { getHash } from "~/server/crypto/hash";
 import { db } from "~/server/db";
-import { verification } from "~/server/db/schema";
+import { verification } from "~/.server/db/schema/auth";
 import { getExpirationDate } from "~/server/session/config";
 
 export async function createVerification({
