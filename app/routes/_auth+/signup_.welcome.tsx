@@ -9,7 +9,7 @@ import { Button } from "~/components/ui/button";
 import { BadgeCheckIcon } from "lucide-react";
 import { checkHoneyPot } from "~/.server/honeypot";
 import { db } from "~/.server/db";
-import { signup } from "~/.server/authentication";
+import { checkCommonPassword, signup } from "~/.server/authentication";
 import { handleNewSession } from "./login.server";
 import { requireVerificationContext } from "./signup.server";
 import { PasswordStrengthMeter } from "./+password-strength-meter";
@@ -63,6 +63,14 @@ export async function action({ request }: Route.ActionArgs) {
     return redirect(
       `/login?email=${encodeURIComponent(email)}&infoCode=existingUserSignupAttempt`,
     );
+  }
+
+  const isCommonPassword = await checkCommonPassword(password);
+
+  if (isCommonPassword) {
+    return submission.reply({
+      fieldErrors: { password: ["The password you entered is too common."] },
+    });
   }
 
   const { session, user } = await signup(request, {

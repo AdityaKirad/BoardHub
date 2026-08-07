@@ -52,6 +52,7 @@
     "react-dom": "^19.2.7",
     "react-router": "^8.2.0",
     "remix-flat-routes": "^0.8.5",
+    "remix-themes": "^2.0.4",
     "remix-utils": "^10.0.0",
     "shadcn": "^4.12.0",
     "tailwind-merge": "^3.6.0",

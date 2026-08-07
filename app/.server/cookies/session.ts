@@ -21,5 +21,5 @@ export const sessionCookie = createCookie(
 export const isMultiSessionCookie = (name: string) =>
   name.includes(MULTI_SESSION_COOKIE_PREFIX);
 
-export const createMultiSessionCookieId = (token: string) =>
-  getHash(token, true).toString().slice(0, 8);
+export const createMultiSessionCookieName = (token: string) =>
+  `${MULTI_SESSION_COOKIE_PREFIX}${getHash(token, true).toString().slice(0, 8)}`;

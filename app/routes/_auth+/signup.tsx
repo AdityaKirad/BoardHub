@@ -142,19 +142,17 @@ export default function Page({ actionData }: Route.ComponentProps) {
         Or continue with:
       </p>
 
-      <Button variant="outline" asChild>
-        <a href="/login/discord">
+      <Form className="contents" method="POST">
+        <Button variant="outline" formAction="/login/discord">
           <DiscordIcon />
           Discord
-        </a>
-      </Button>
+        </Button>
 
-      <Button variant="outline" asChild>
-        <a href="/login/github">
+        <Button variant="outline" formAction="/login/github">
           <GithubIcon />
           GitHub
-        </a>
-      </Button>
+        </Button>
+      </Form>
 
       <div className="flex items-center justify-center gap-2">
         <Button className="p-0 text-blue-500" variant="link" asChild>

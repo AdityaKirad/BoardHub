@@ -1,6 +1,5 @@
 import { linkOAuthAccount, providers } from "~/server/oauth";
 import type { Route } from "./+types/login.$provider.callback";
-import { redirectWithFlash } from "~/server/authentication";
 import {
   destroyRedirectToHeader,
   getRedirectCookieValue,
@@ -8,6 +7,8 @@ import {
   oauthStateCookie,
 } from "~/server/cookies";
 import { handleNewSession } from "./login.server";
+import { redirect } from "react-router";
+import { oauthErrorCodes } from "./login.$provider";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const provider = providers[params.provider];
@@ -24,13 +25,21 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   );
 
   if (!provider) {
-    return redirectWithFlash({ headers, error: "Invalid OAuth Provider" });
+    return redirect(
+      `/login?errorCode=${encodeURIComponent(oauthErrorCodes.invalidProvider)}`,
+      {
+        headers,
+      },
+    );
   }
 
   const profile = await provider.handleCallback(request);
 
   if (!profile) {
-    return redirectWithFlash({ headers, error: "OAuth sign-in failed" });
+    return redirect(
+      `/login?errorCode=${encodeURIComponent(oauthErrorCodes.signupFailed)}`,
+      { headers },
+    );
   }
 
   const { session, user } = await linkOAuthAccount(

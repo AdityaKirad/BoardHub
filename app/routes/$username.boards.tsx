@@ -7,13 +7,24 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Button } from "~/components/ui/button";
-import { BellIcon } from "lucide-react";
+import {
+  BellIcon,
+  ChevronRightIcon,
+  SunMoonIcon,
+  UsersIcon,
+} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { requireUser } from "~/.server/session";
 import { getInitials } from "~/lib/utils";
+import type { UserSelectType } from "~/.server/db/schema/auth";
+import { Theme, useTheme } from "remix-themes";
 
 export const meta: Route.MetaFunction = () => [{ title: "Boards | BoardHub" }];
 
@@ -42,49 +53,93 @@ export default function Page({ loaderData }: Route.ComponentProps) {
             <DropdownMenuContent></DropdownMenuContent>
           </DropdownMenu>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Avatar>
-                  <AvatarImage
-                    src={loaderData.photo ?? ""}
-                    alt={`@${loaderData.username}`}
-                  />
-                  <AvatarFallback>
-                    {getInitials(loaderData.name)}
-                  </AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="min-w-80">
-              <DropdownMenuGroup>
-                <DropdownMenuLabel>ACCOUNT</DropdownMenuLabel>
-                <div className="flex items-center gap-2">
-                  <Avatar>
-                    <AvatarImage
-                      src={loaderData.photo ?? ""}
-                      alt={`@${loaderData.username}`}
-                    />
-                    <AvatarFallback>
-                      {getInitials(loaderData.name)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p>{loaderData.name}</p>
-                    <p>{loaderData.email}</p>
-                  </div>
-                </div>
-                <DropdownMenuItem asChild>
-                  <Link to="/login/select-account">Switch accounts</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/settings">Manage account</Link>
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <UserDropdownMenu user={loaderData} />
         </div>
       </header>
     </>
+  );
+}
+
+function UserDropdownMenu({
+  user,
+}: {
+  user: Pick<UserSelectType, "name" | "email" | "username" | "photo">;
+}) {
+  const [theme, themeSet] = useTheme();
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button className="rounded" variant="ghost" size="icon">
+          <Avatar>
+            <AvatarImage src={user.photo ?? ""} alt={`@${user.username}`} />
+            <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+          </Avatar>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="min-w-80">
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>ACCOUNT</DropdownMenuLabel>
+          <div className="flex items-center gap-2">
+            <Avatar>
+              <AvatarImage src={user.photo ?? ""} alt={`@${user.username}`} />
+              <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+            </Avatar>
+            <div>
+              <p>{user.name}</p>
+              <p>{user.email}</p>
+            </div>
+          </div>
+          <DropdownMenuItem asChild>
+            <Link to="/login/select-account">Switch accounts</Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to="/settings">Manage account</Link>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+
+        <DropdownMenuSeparator />
+
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>BOARDHUB</DropdownMenuLabel>
+          <DropdownMenuItem asChild>
+            <Link to={`/${user.username}/profile`}>Profile and visibility</Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to={`/${user.username}/cards`}>Cards</Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to={`/${user.username}/settings`}>Settings</Link>
+          </DropdownMenuItem>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>
+              <SunMoonIcon />
+              Theme
+              <ChevronRightIcon />
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <DropdownMenuItem onClick={() => themeSet(Theme.LIGHT)}>
+                Light
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => themeSet(Theme.DARK)}>
+                Dark
+              </DropdownMenuItem>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+
+          <DropdownMenuSeparator />
+
+          <DropdownMenuItem>
+            <UsersIcon />
+            Create Workspace
+          </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+
+          <DropdownMenuItem asChild>
+            <Link to="/logout">Logout</Link>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

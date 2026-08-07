@@ -1,7 +1,7 @@
 import { createCookieSessionStorage } from "react-router";
-import type { UserSelectType } from "~/server/db";
+import type { UserSelectType } from "~/server/db/schema/auth";
 import { env } from "~/env.server";
-import { SESSION_CACHE_AGE } from "../config";
+import { SESSION_CACHE_AGE } from "./config";
 
 export type SessionUser = Pick<
   UserSelectType,

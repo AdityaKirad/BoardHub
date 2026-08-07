@@ -1,13 +1,15 @@
 import {
-  createMultiSessionCookieId,
-  MULTI_SESSION_COOKIE_PREFIX,
+  createMultiSessionCookieName,
   sessionCookie,
   sessionCookieOptions,
 } from "~/.server/cookies/session";
 import { createCookie, redirect } from "react-router";
 import { safeRedirect } from "remix-utils/safe-redirect";
-import type { SessionSelectType, UserSelectType } from "~/.server/db";
-import { sessionDataStorage } from "~/.server/session/storage/session-data";
+import type {
+  SessionSelectType,
+  UserSelectType,
+} from "~/.server/db/schema/auth";
+import { sessionDataStorage } from "~/.server/session/session-data";
 import { getExpirationDate } from "~/.server/session";
 
 export async function handleNewSession({
@@ -48,7 +50,7 @@ export async function handleNewSession({
   headers.append(
     "set-cookie",
     await createCookie(
-      `${MULTI_SESSION_COOKIE_PREFIX}${createMultiSessionCookieId(session.token)}`,
+      createMultiSessionCookieName(session.token),
       sessionCookieOptions,
     ).serialize(session.token, {
       expires: session.expiresAt,

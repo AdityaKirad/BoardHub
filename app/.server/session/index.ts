@@ -1,6 +1,5 @@
 export {
   getExpirationDate,
-  isDateExpired,
   MAX_SESSIONS,
   SESSION_CACHE_AGE,
   SESSION_EXPIRES_AGE,

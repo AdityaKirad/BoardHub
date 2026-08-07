@@ -1,12 +1,19 @@
 import { providers } from "~/server/oauth";
 import type { Route } from "./+types/login.$provider";
-import { redirectWithFlash } from "~/server/authentication";
+import { redirect } from "react-router";
 
-export async function loader({ request, params }: Route.LoaderArgs) {
+export const oauthErrorCodes = {
+  invalidProvider: "invalid.oauth.provider",
+  signupFailed: "oauth.signup.failed",
+};
+
+export async function action({ request, params }: Route.ActionArgs) {
   const provider = providers[params.provider];
 
   if (!provider) {
-    return redirectWithFlash({ error: "Invalid OAuth Provider" });
+    return redirect(
+      `/login?errorCode=${encodeURIComponent(oauthErrorCodes.invalidProvider)}`,
+    );
   }
 
   return provider.generateAuth(request);

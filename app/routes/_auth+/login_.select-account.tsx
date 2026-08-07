@@ -1,16 +1,15 @@
 import { getExpirationDate, getUsers, requireUser } from "~/.server/session";
 import type { Route } from "./+types/login_.select-account";
-import { createCookie, data, Link, redirect } from "react-router";
+import { createCookie, data, Form, Link, redirect } from "react-router";
 import { Button } from "~/components/ui/button";
 import { UserCircleIcon, XCircleIcon } from "lucide-react";
 import {
-  createMultiSessionCookieId,
-  MULTI_SESSION_COOKIE_PREFIX,
+  createMultiSessionCookieName,
   sessionCookie,
   sessionCookieOptions,
 } from "~/.server/cookies";
 import { db } from "~/.server/db";
-import { sessionDataStorage } from "~/.server/session/storage/session-data";
+import { sessionDataStorage } from "~/.server/session/session-data";
 import { AccountsList } from "./+accounts-list";
 
 export const meta: Route.MetaFunction = () => [
@@ -32,19 +31,15 @@ export async function action({ request }: Route.ActionArgs) {
 
   const formData = await request.formData();
 
-  const sessionToken = formData.get("session_token");
-
-  if (typeof sessionToken !== "string") {
-    return;
-  }
+  const token = formData.get("token");
 
   const cookie = (await createCookie(
-    `${MULTI_SESSION_COOKIE_PREFIX}${createMultiSessionCookieId(sessionToken)}`,
+    createMultiSessionCookieName(token as string),
     sessionCookieOptions,
   ).parse(request.headers.get("cookie"))) as string;
 
   if (!cookie) {
-    return;
+    return redirect("/login?errorCode=invalid.session.token");
   }
 
   const session = await db.query.session.findFirst({
@@ -59,7 +54,7 @@ export async function action({ request }: Route.ActionArgs) {
   });
 
   if (!session) {
-    return;
+    return redirect("/login?errorCode=invalid.session.token");
   }
 
   const sessionData = await sessionDataStorage.getSession();
@@ -96,19 +91,29 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       <h1 className="text-center font-medium text-slate-950">
         Choose or add another account
       </h1>
-      <AccountsList accounts={loaderData} />
+      <AccountsList accounts={loaderData} action="select-account" />
       <Button variant="outline" asChild>
         <Link to="/login">
           <UserCircleIcon />
           <p className="flex-1 text-center">Add another account</p>
         </Link>
       </Button>
-      <Button variant="outline" asChild>
-        <Link to="/login/remove-account">
-          <XCircleIcon />
-          <p className="flex-1 text-center">Remove account from this browser</p>
-        </Link>
-      </Button>
+      {loaderData.length > 1 ? (
+        <Button variant="outline" asChild>
+          <Link to="/login/remove-account">
+            <XCircleIcon />
+            <p className="flex-1 text-center">
+              Remove account from this browser
+            </p>
+          </Link>
+        </Button>
+      ) : (
+        <Form method="POST" action="/logout">
+          <Button type="submit" variant="link" name="target" value="current">
+            Log out
+          </Button>
+        </Form>
+      )}
     </>
   );
 }

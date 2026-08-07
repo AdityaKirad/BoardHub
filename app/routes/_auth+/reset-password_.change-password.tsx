@@ -17,6 +17,7 @@ import {
 import { useEffect, useState } from "react";
 import { PasswordStrengthMeter } from "./+password-strength-meter";
 import {
+  checkCommonPassword,
   resetPassword,
   validateVerificationCode,
 } from "~/.server/authentication";
@@ -97,6 +98,14 @@ export async function action({ request }: Route.ActionArgs) {
     return redirect(
       `/reset-password?message=${encodeURIComponent(ErrorCodes.changed)}`,
     );
+  }
+
+  const isCommonPassword = await checkCommonPassword(submission.value.password);
+
+  if (isCommonPassword) {
+    return submission.reply({
+      fieldErrors: { password: ["The password you entered is too common."] },
+    });
   }
 
   try {

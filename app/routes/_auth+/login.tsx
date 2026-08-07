@@ -37,6 +37,8 @@ const error: Record<string, string> = {
     "Something went wrong while verifying your email address. Enter your email address and try again.",
   [signupErrorCodes.expired]:
     "Your email verification attempt has expired. Enter your email address and try again.",
+  "invalid.session.token":
+    "Your session token is invalid. Log in again to continue.",
 };
 
 export const meta: Route.MetaFunction = () => [
@@ -175,19 +177,17 @@ export default function Page({ actionData }: Route.ComponentProps) {
         Or continue with:
       </p>
 
-      <Button variant="outline" asChild>
-        <a href="/login/discord">
+      <Form className="contents" method="POST">
+        <Button variant="outline" formAction="/login/discord">
           <DiscordIcon />
           Discord
-        </a>
-      </Button>
+        </Button>
 
-      <Button variant="outline" asChild>
-        <a href="/login/github">
+        <Button variant="outline" formAction="/login/github">
           <GithubIcon />
           GitHub
-        </a>
-      </Button>
+        </Button>
+      </Form>
 
       <div className="flex items-center justify-center gap-2 max-sm:flex-col">
         <Button className="p-0 text-blue-500" variant="link" asChild>

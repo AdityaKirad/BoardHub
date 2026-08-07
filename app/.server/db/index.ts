@@ -45,5 +45,3 @@ export type DBAdapter =
       Schema,
       ExtractTablesWithRelations<Schema>
     >;
-
-export * from "./schema/auth";

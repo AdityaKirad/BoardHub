@@ -4,11 +4,9 @@ export const SESSION_CACHE_AGE = 5 * 60;
 export const MAX_SESSIONS = 5;
 
 /**
- * @param {number} [time=600] - The duration in seconds
+ * @param {number} time - The duration in seconds
+ * @default 600 seconds (10 minutes)
  * @returns {Date} Calculated expiration date
  */
 export const getExpirationDate = (time = 600) =>
   new Date(Date.now() + time * 1000);
-
-export const isDateExpired = (date: Date) =>
-  new Date().getTime() > date.getTime();

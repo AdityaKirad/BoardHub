@@ -7,8 +7,8 @@ import { createCookie } from "react-router";
 import { getClientIPAddress } from "remix-utils/get-client-ip-address";
 import { generateRandomString } from "~/server/crypto/random-string";
 import { parseCookies } from "~/.server/parse-cookies";
-import type { DBAdapter } from "~/server/db";
-import { db, session, user } from "~/server/db";
+import { db, type DBAdapter } from "~/server/db";
+import { session, user } from "~/server/db/schema/auth";
 import {
   isMultiSessionCookie,
   sessionCookie,
@@ -21,7 +21,7 @@ import {
   SESSION_UPDATE_AGE,
 } from "./config";
 import { getIpLocation } from "./metadata";
-import { sessionDataStorage } from "./storage/session-data";
+import { sessionDataStorage } from "./session-data";
 
 export async function createSession(
   request: Request,

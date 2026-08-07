@@ -15,19 +15,14 @@ export async function checkCommonPassword(password: string) {
     .digest("hex")
     .toUpperCase();
   const [prefix, suffix] = [hash.slice(0, 5), hash.slice(5)];
-  const controller = new AbortController();
 
   try {
-    const timeout = setTimeout(() => controller.abort(), 1000);
-
     const res = await fetch(
       `https://api.pwnedpasswords.com/range/${encodeURIComponent(prefix)}`,
       {
-        signal: controller.signal,
+        signal: AbortSignal.timeout(1000),
       },
     );
-
-    clearTimeout(timeout);
 
     if (!res.ok) {
       console.warn(`PwnedPasswords API responded with ${res.status} status`);
@@ -38,7 +33,7 @@ export async function checkCommonPassword(password: string) {
 
     return data.split(/\r?\n/).some((line) => line.includes(suffix));
   } catch (error) {
-    if (error instanceof Error && error.name === "AbortError") {
+    if (error instanceof Error && error.name === "TimeoutError") {
       console.warn("Password check timed out");
     } else {
       console.warn("Unknown error occurred while checking password", error);

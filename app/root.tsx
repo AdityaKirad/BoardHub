@@ -6,10 +6,19 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from "react-router";
 import "./app.css";
 import { HoneypotProvider } from "remix-utils/honeypot/react";
 import { honeypot } from "~/.server/honeypot";
+import {
+  PreventFlashOnWrongTheme,
+  Theme,
+  ThemeProvider,
+  useTheme,
+} from "remix-themes";
+import { themeSessionResolver } from "./.server/session/storage/theme";
+import { clsx } from "clsx";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -24,21 +33,45 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
-export async function loader() {
-  return { honeypotProps: await honeypot.getInputProps() };
+export async function loader({ request }: Route.LoaderArgs) {
+  const currentPathname = new URL(request.url).pathname;
+
+  const forcedLightRoutes = [
+    "/login",
+    "/login/select-account",
+    "/login/remove-account",
+    "/logout",
+    "/reset-password",
+    "/reset-password/change-password",
+    "/signup",
+    "/signup/verify-email",
+    "/signup/welcome",
+  ];
+
+  const { getTheme } = await themeSessionResolver(request);
+
+  return {
+    honeypotProps: await honeypot.getInputProps(),
+    theme: forcedLightRoutes.includes(currentPathname)
+      ? Theme.LIGHT
+      : getTheme(),
+  };
 }
 
-export function Layout({ children }: { children: React.ReactNode }) {
+export function App() {
+  const data = useLoaderData<typeof loader>();
+  const [theme] = useTheme();
   return (
-    <html lang="en">
+    <html lang="en" className={clsx(theme)}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
+        <PreventFlashOnWrongTheme ssrTheme={Boolean(data.theme)} />
         <Links />
       </head>
       <body>
-        {children}
+        <Outlet />
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -46,10 +79,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function App({ loaderData }: Route.ComponentProps) {
+export default function AppWithProviders({ loaderData }: Route.ComponentProps) {
   return (
     <HoneypotProvider {...loaderData.honeypotProps}>
-      <Outlet />
+      <ThemeProvider specifiedTheme={loaderData.theme} themeAction="/set-them">
+        <App />
+      </ThemeProvider>
     </HoneypotProvider>
   );
 }
