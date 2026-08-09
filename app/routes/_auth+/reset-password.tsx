@@ -45,7 +45,7 @@ export async function action({ request }: Route.ActionArgs) {
   const submission = parseWithZod(formData, { schema });
 
   if (submission.status !== "success") {
-    return { result: submission.reply() };
+    return submission.reply();
   }
 
   const user = await db.query.user.findFirst({
@@ -60,11 +60,9 @@ export async function action({ request }: Route.ActionArgs) {
     });
 
     if (!verification) {
-      return {
-        result: submission.reply({
-          formErrors: ["Something went wrong. Please try again later."],
-        }),
-      };
+      return submission.reply({
+        formErrors: ["Something went wrong. Please try again later."],
+      });
     }
 
     const signature = await getSignedToken({
@@ -85,11 +83,9 @@ export async function action({ request }: Route.ActionArgs) {
     });
 
     if (!success) {
-      return {
-        result: submission.reply({
-          formErrors: ["Something went wrong. Please try again later."],
-        }),
-      };
+      return submission.reply({
+        formErrors: ["Something went wrong. Please try again later."],
+      });
     }
   }
 
@@ -110,7 +106,7 @@ export default function Page({ actionData }: Route.ComponentProps) {
     defaultValue: {
       email: searchParams.get("email"),
     },
-    lastResult: actionData?.result,
+    lastResult: actionData,
     shouldValidate: "onBlur",
     constraint: getZodConstraint(schema),
     onValidate: ({ formData }) => parseWithZod(formData, { schema }),
@@ -124,13 +120,12 @@ export default function Page({ actionData }: Route.ComponentProps) {
     ? `/reset-password?email=${encodeURIComponent(submittedEmail)}`
     : "/reset-password";
   const showRecoveryLinkSent = Boolean(
-    searchParams.get("recoveryLinkSent") === "true" ||
-    (actionData && !actionData.result),
+    searchParams.get("recoveryLinkSent") === "true",
   );
 
   return (
     <>
-      <h1 className="mb-2 text-center font-bold text-blue-950">Can't log in</h1>
+      <h1 className="text-center font-bold">Can't log in</h1>
 
       {errorMessage && (
         <p className="flex gap-2 rounded bg-amber-100/85 p-4">
@@ -167,12 +162,16 @@ export default function Page({ actionData }: Route.ComponentProps) {
         </>
       ) : (
         <>
-          <img className="mx-auto" src={EmailIllustration} />
-          <p className="text-muted-foreground text-sm">
+          <img
+            className="mx-auto"
+            src={EmailIllustration}
+            alt="Email illustration"
+          />
+          <p className="text-muted-foreground text-center text-sm">
             We sent a recovery link to you at
           </p>
-          <p className="font-bold text-blue-950">{email}</p>
-          <p className="text-muted-foreground mb-4 text-xs">
+          <p className="text-center font-bold">{email}</p>
+          <p className="text-muted-foreground mb-4 text-center text-xs">
             If you haven't received the email, check your spam folder or{" "}
             <Link
               className="text-primary undeline-offset-2 underline transition-transform hover:no-underline focus-visible:no-underline active:translate-y-px"

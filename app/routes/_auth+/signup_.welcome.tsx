@@ -73,20 +73,26 @@ export async function action({ request }: Route.ActionArgs) {
     });
   }
 
-  const { session, user } = await signup(request, {
-    password,
-    userInfo: {
-      name,
-      email,
-      verified: true,
-    },
-  });
+  try {
+    const { session, user } = await signup(request, {
+      password,
+      userInfo: {
+        name,
+        email,
+        verified: true,
+      },
+    });
 
-  return handleNewSession({
-    redirectTo,
-    session,
-    user,
-  });
+    return handleNewSession({
+      redirectTo,
+      session,
+      user,
+    });
+  } catch (error) {
+    return submission.reply({
+      formErrors: ["Something went wrong. Please try again"],
+    });
+  }
 }
 
 export default function Page({ actionData, loaderData }: Route.ComponentProps) {
@@ -112,15 +118,13 @@ export default function Page({ actionData, loaderData }: Route.ComponentProps) {
     return () => clearTimeout(timeout);
   });
   return (
-    <div>
+    <>
       <div className="flex flex-col items-center">
-        <h1 className="flex items-center justify-center gap-1 text-lg font-bold text-blue-950">
+        <h1 className="flex items-center justify-center gap-1 text-lg font-bold">
           Email address verified
           <BadgeCheckIcon className="stroke-background fill-green-600" />
         </h1>
-        <h2 className="text-sm font-bold text-blue-950">
-          Finish setting up your account
-        </h2>
+        <h2 className="text-sm font-bold">Finish setting up your account</h2>
       </div>
       <Form
         className="mt-4 flex flex-col gap-2"
@@ -158,6 +162,6 @@ export default function Page({ actionData, loaderData }: Route.ComponentProps) {
 
         <Button type="submit">Continue</Button>
       </Form>
-    </div>
+    </>
   );
 }

@@ -16,16 +16,18 @@ export async function loader({ request }: Route.LoaderArgs) {
     return redirect("/login");
   }
 
-  return data(sessions, { headers });
+  return data({ sessions }, { headers });
 }
 
-export default function Page({ loaderData }: Route.ComponentProps) {
+export default function Page({
+  loaderData: { sessions },
+}: Route.ComponentProps) {
   return (
     <>
-      <h1 className="text-center font-medium text-slate-950">
+      <h1 className="text-center font-medium">
         Remove accounts from this browser
       </h1>
-      <AccountsList accounts={loaderData} action="remove-account" />
+      <AccountsList accounts={sessions} action="remove-account" />
       <Form method="POST" action="/logout">
         <Button className="w-full" type="submit" variant="outline">
           <LogOutIcon />

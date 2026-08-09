@@ -134,6 +134,7 @@ export default function Page({ actionData }: Route.ComponentProps) {
   const [form, fields] = useForm({
     id: "change-password",
     lastResult: actionData,
+    shouldValidate: "onBlur",
     constraint: getZodConstraint(schema),
     onValidate: ({ formData }) => parseWithZod(formData, { schema }),
   });
@@ -149,9 +150,7 @@ export default function Page({ actionData }: Route.ComponentProps) {
 
   return (
     <>
-      <h1 className="text-center font-medium text-blue-950">
-        Choose a new password
-      </h1>
+      <h1 className="text-center font-medium">Choose a new password</h1>
 
       <Form
         className="flex flex-col gap-2"

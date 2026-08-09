@@ -73,7 +73,7 @@ export async function action({ request }: Route.ActionArgs) {
   const signature = await getSignedToken({
     sub: email,
     scope: "signup",
-    exp: Math.floor(exp.getTime() / 1000),
+    exp: exp.getTime() / 1000,
   });
 
   const { success } = await sendEmail({
@@ -113,9 +113,7 @@ export default function Page({ actionData }: Route.ComponentProps) {
 
   return (
     <>
-      <h1 className="text-center text-lg font-bold text-blue-950">
-        Sign up to continue.
-      </h1>
+      <h1 className="text-center text-lg font-bold">Sign up to continue.</h1>
 
       <Form className="space-y-2" method="POST" {...getFormProps(form)}>
         <Field
@@ -126,6 +124,12 @@ export default function Page({ actionData }: Route.ComponentProps) {
           labelProps={{ children: "Email" }}
           errors={fields.email.errors}
         />
+
+        {Boolean(form.errors?.length) && (
+          <p className="text-destructive text-center text-sm">
+            {form.errors?.join(", ")}
+          </p>
+        )}
 
         <HoneypotInputs />
 
@@ -158,7 +162,7 @@ export default function Page({ actionData }: Route.ComponentProps) {
         <Button className="p-0 text-blue-500" variant="link" asChild>
           <Link
             to={{
-              pathname: "login",
+              pathname: "/login",
               search: fields.email.value
                 ? `?email=${encodeURIComponent(fields.email.value)}`
                 : "",

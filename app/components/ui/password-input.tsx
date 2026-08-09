@@ -9,7 +9,7 @@ const PasswordInput = forwardRef<
   const [visible, visibleSet] = useState(false);
   return (
     <div
-      className="border-input ring-offset-background focus-within:border-ring focus-within:ring-ring/50 [&>input:aria-invalid]:border-destructive [&>input:aria-invalid]:ring-destructive/20 dark:bg-input/30 dark:[&>input:aria-invalid]:border-destructive/50 dark:[&>input:aria-invalid]:ring-destructive/40 flex h-8 items-center gap-2 rounded-lg border px-2.5 transition-colors focus-within:ring-3 [&>input:aria-invalid]:ring-3"
+      className="border-input ring-offset-background focus-within:ring-primary [&>input:aria-invalid]:border-destructive [&>input:aria-invalid]:ring-destructive/20 dark:bg-input/30 dark:[&>input:aria-invalid]:border-destructive/50 dark:[&>input:aria-invalid]:ring-destructive/40 flex h-8 items-center gap-2 rounded border px-2.5 transition-colors focus-within:ring-2 [&>input:aria-invalid]:ring-2"
       data-slot="password-input">
       <input
         className={cn(

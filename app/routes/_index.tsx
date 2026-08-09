@@ -20,9 +20,9 @@ export default function Page() {
     <>
       <header className="sticky top-0 flex items-center px-4 py-2 shadow-md">
         <Link
-          className="flex items-center gap-2 text-4xl font-bold text-blue-950"
+          className="flex items-center gap-1 text-xl font-bold md:gap-2 md:text-4xl"
           to="/">
-          <AppLogo />
+          <AppLogo className="max-md:size-8" />
           <span>BoardHub</span>
         </Link>
 
@@ -36,7 +36,7 @@ export default function Page() {
 
       <main className="mt-10 flex items-center gap-8 px-12 max-lg:flex-col max-lg:px-6">
         <div className="flex-1">
-          <h1 className="text-4xl font-bold">
+          <h1 className="text-2xl font-bold md:text-4xl">
             BoardHub helps teams move work forward.
           </h1>
           <p className="text-xl">

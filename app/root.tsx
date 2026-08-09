@@ -37,6 +37,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const currentPathname = new URL(request.url).pathname;
 
   const forcedLightRoutes = [
+    "/",
     "/login",
     "/login/select-account",
     "/login/remove-account",

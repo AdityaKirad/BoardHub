@@ -14,6 +14,28 @@ import { generateUsernameSuggestions } from "~/.server/username";
 import { getPasswordHash, verifyPassword } from "./password";
 import { and, eq } from "drizzle-orm";
 
+type LoginResult = Promise<
+  | {
+      ok: true;
+      user: Pick<
+        UserSelectType,
+        "id" | "name" | "email" | "username" | "photo"
+      >;
+      session: Pick<SessionSelectType, "token" | "updatedAt" | "expiresAt">;
+      headers: HeadersInit;
+    }
+  | {
+      ok: false;
+      reason: "session-cap-reached";
+      headers: HeadersInit;
+      username: string;
+    }
+  | {
+      ok: false;
+      reason: "invalid-credentials";
+    }
+>;
+
 export const CREDENTIAL_PROVIDER_KEY = "credential";
 
 export async function login(
@@ -27,19 +49,7 @@ export async function login(
     password: string;
     remember: boolean;
   },
-): Promise<
-  | { headers: HeadersInit; sessionCapReached: true; username: string }
-  | {
-      headers: HeadersInit;
-      session: Pick<SessionSelectType, "token" | "updatedAt" | "expiresAt">;
-      user: Pick<
-        UserSelectType,
-        "id" | "name" | "email" | "username" | "photo"
-      >;
-      sessionCapReached?: never;
-    }
-  | null
-> {
+): LoginResult {
   const [dbUser] = await db
     .select({
       user: {
@@ -60,7 +70,7 @@ export async function login(
 
   if (!dbUser?.password) {
     await getPasswordHash(password);
-    return null;
+    return { ok: false, reason: "invalid-credentials" };
   }
 
   const isValid = await verifyPassword({
@@ -69,7 +79,7 @@ export async function login(
   });
 
   if (!isValid) {
-    return null;
+    return { ok: false, reason: "invalid-credentials" };
   }
 
   const cookie = request.headers.get("cookie");
@@ -107,7 +117,7 @@ export async function login(
       throw new Error("Failed to create session");
     }
 
-    return { headers, session, user: dbUser.user };
+    return { ok: true, headers, session, user: dbUser.user };
   }
 
   const sessions = await db.query.session.findMany({
@@ -143,13 +153,14 @@ export async function login(
   }
 
   if (existingSession) {
-    return { headers, user: dbUser.user, session: existingSession };
+    return { ok: true, headers, user: dbUser.user, session: existingSession };
   }
 
   if (sessions.length >= MAX_SESSIONS) {
     return {
       headers,
-      sessionCapReached: true,
+      ok: false,
+      reason: "session-cap-reached",
       username: dbUser.user.username,
     };
   }
@@ -162,7 +173,7 @@ export async function login(
     throw new Error("Failed to create session");
   }
 
-  return { headers, session, user: dbUser.user };
+  return { ok: true, headers, session, user: dbUser.user };
 }
 
 export const signup = (

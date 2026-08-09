@@ -29,9 +29,6 @@ const schema = z.object({
   remember: z.boolean().default(false),
 });
 
-const sleep = (ms: number) =>
-  new Promise((resolve) => setTimeout(resolve, ms * Math.random()));
-
 const error: Record<string, string> = {
   [signupErrorCodes.error]:
     "Something went wrong while verifying your email address. Enter your email address and try again.",
@@ -50,42 +47,31 @@ export async function action({ request }: Route.ActionArgs) {
 
   await checkHoneyPot(formData);
 
-  const submission = await parseWithZod(formData, {
-    schema: (intent) =>
-      schema.transform(async (data, ctx) => {
-        if (intent !== null) {
-          return { ...data, session: null };
-        }
-
-        const session = await login(request, data);
-
-        if (!session) {
-          ctx.addIssue({
-            code: "custom",
-            message: "Invalid credentials",
-          });
-
-          return z.NEVER;
-        }
-
-        return { ...data, session };
-      }),
-    async: true,
+  const submission = parseWithZod(formData, {
+    schema,
   });
 
-  if (submission.status !== "success" || !submission.value.session) {
+  if (submission.status !== "success") {
     return submission.reply();
   }
 
-  const { session } = submission.value;
+  const session = await login(request, submission.value);
 
-  if (session.sessionCapReached) {
-    return redirect(`/${session.username}/boards`);
+  if (!session.ok) {
+    if (session.reason === "invalid-credentials") {
+      return submission.reply({
+        fieldErrors: {
+          email: ["Invalid credentials"],
+          password: ["Invalid credentials"],
+        },
+      });
+    }
+    return redirect(`/${session.username}/boards`, {
+      headers: session.headers,
+    });
   }
 
   const url = new URL(request.url);
-
-  await sleep(3000);
 
   return handleNewSession({
     ...session,
@@ -100,8 +86,9 @@ export default function Page({ actionData }: Route.ComponentProps) {
     defaultValue: {
       email: searchParams.get("email"),
     },
-    constraint: getZodConstraint(schema),
     lastResult: actionData,
+    shouldValidate: "onBlur",
+    constraint: getZodConstraint(schema),
     onValidate: ({ formData }) => parseWithZod(formData, { schema }),
   });
   const isPending = useIsPending();
@@ -109,9 +96,7 @@ export default function Page({ actionData }: Route.ComponentProps) {
   const errorMessage = error[searchParams.get("errorCode")!];
   return (
     <>
-      <h1 className="text-center font-bold text-blue-950">
-        Log in to continue.
-      </h1>
+      <h1 className="text-center font-bold">Log in to continue.</h1>
 
       {errorMessage && (
         <p className="flex gap-2 rounded bg-amber-100/85 p-4">
@@ -189,7 +174,7 @@ export default function Page({ actionData }: Route.ComponentProps) {
         </Button>
       </Form>
 
-      <div className="flex items-center justify-center gap-2 max-sm:flex-col">
+      <div className="flex items-center justify-center gap-1 sm:gap-2">
         <Button className="p-0 text-blue-500" variant="link" asChild>
           <Link
             to={{
@@ -201,7 +186,7 @@ export default function Page({ actionData }: Route.ComponentProps) {
             Can't log in?
           </Link>
         </Button>
-        <DotIcon className="max-sm:hidden" />
+        <DotIcon />
         <Button className="p-0 text-blue-500" variant="link" asChild>
           <Link
             to={{

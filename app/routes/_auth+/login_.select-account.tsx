@@ -23,7 +23,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     return redirect("/login");
   }
 
-  return data(sessions, { headers });
+  return data({ sessions }, { headers });
 }
 
 export async function action({ request }: Route.ActionArgs) {
@@ -85,20 +85,20 @@ export async function action({ request }: Route.ActionArgs) {
   return redirect(`/${session.user.username}/boards`, { headers });
 }
 
-export default function Page({ loaderData }: Route.ComponentProps) {
+export default function Page({
+  loaderData: { sessions },
+}: Route.ComponentProps) {
   return (
     <>
-      <h1 className="text-center font-medium text-slate-950">
-        Choose or add another account
-      </h1>
-      <AccountsList accounts={loaderData} action="select-account" />
+      <h1 className="text-center font-medium">Choose or add another account</h1>
+      <AccountsList accounts={sessions} action="select-account" />
       <Button variant="outline" asChild>
         <Link to="/login">
           <UserCircleIcon />
           <p className="flex-1 text-center">Add another account</p>
         </Link>
       </Button>
-      {loaderData.length > 1 ? (
+      {sessions.length > 1 ? (
         <Button variant="outline" asChild>
           <Link to="/login/remove-account">
             <XCircleIcon />
@@ -108,8 +108,8 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           </Link>
         </Button>
       ) : (
-        <Form method="POST" action="/logout">
-          <Button type="submit" variant="link" name="target" value="current">
+        <Form method="POST" action={`/logout/${sessions[0]?.token}`}>
+          <Button className="w-full" type="submit" variant="link">
             Log out
           </Button>
         </Form>

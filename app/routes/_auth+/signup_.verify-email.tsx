@@ -76,7 +76,7 @@ export default function Page({ actionData, loaderData }: Route.ComponentProps) {
   });
   return (
     <>
-      <h1 className="text-center text-xl font-bold text-zinc-950">
+      <h1 className="text-center text-xl font-bold">
         We've emailed you a code
       </h1>
       <p className="text-muted-foreground">

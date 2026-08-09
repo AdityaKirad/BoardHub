@@ -41,7 +41,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
             /* empty */
           }}>
           <AppLogo height={32} width={32} />
-          <span className="text-sm font-medium text-blue-950">BoardHub</span>
+          <span className="text-sm font-medium">BoardHub</span>
         </Link>
         <div className="flex items-center gap-1">
           <DropdownMenu>
