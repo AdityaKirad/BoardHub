@@ -3,7 +3,7 @@ import type { Config } from "drizzle-kit";
 export default {
   dialect: "turso",
   out: "./drizzle",
-  schema: "./app/.server/db/schema.ts",
+  schema: "./app/.server/db/schema/*.ts",
   dbCredentials: {
     url: process.env.DATABASE_URL!,
     authToken: process.env.DATABASE_AUTH_TOKEN,

@@ -8,21 +8,11 @@ import {
 import { createId } from "@paralleldrive/cuid2";
 import {
   relations,
-  sql,
   type InferInsertModel,
   type InferSelectModel,
 } from "drizzle-orm";
-
-const timestamps = {
-  createdAt: integer({ mode: "timestamp_ms" })
-    .notNull()
-    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`),
-  updatedAt: integer({ mode: "timestamp_ms" })
-    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
-    .$onUpdateFn(() => new Date())
-    .notNull(),
-  expiresAt: integer({ mode: "timestamp_ms" }).notNull(),
-};
+import { board } from "./workspace";
+import { timestamps } from "../timestamp";
 
 export const user = sqliteTable("user", {
   id: text().notNull().primaryKey().$defaultFn(createId),
@@ -83,6 +73,7 @@ export const session = sqliteTable(
 export const userRelations = relations(user, ({ many }) => ({
   accounts: many(account),
   sessions: many(session),
+  boards: many(board),
 }));
 
 export const accountRelations = relations(account, ({ one }) => ({

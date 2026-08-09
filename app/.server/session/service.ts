@@ -185,6 +185,7 @@ export async function getUser(
 
     return {
       headers,
+      user: null,
     };
   }
 
@@ -217,7 +218,7 @@ export async function getUser(
         await sessionDataStorage.destroySession(sessionData),
       );
 
-      return { headers };
+      return { headers, user: null };
     }
 
     const sessionCacheExpires = getExpirationDate(SESSION_CACHE_AGE);

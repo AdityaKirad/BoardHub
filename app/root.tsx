@@ -1,5 +1,6 @@
 import type { Route } from "./+types/root";
 import {
+  data,
   isRouteErrorResponse,
   Links,
   Meta,
@@ -19,6 +20,7 @@ import {
 } from "remix-themes";
 import { themeSessionResolver } from "./.server/session/storage/theme";
 import { clsx } from "clsx";
+import { getUser } from "./.server/session";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -34,6 +36,8 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export async function loader({ request }: Route.LoaderArgs) {
+  const { user, headers } = await getUser(request);
+
   const currentPathname = new URL(request.url).pathname;
 
   const forcedLightRoutes = [
@@ -51,12 +55,16 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   const { getTheme } = await themeSessionResolver(request);
 
-  return {
-    honeypotProps: await honeypot.getInputProps(),
-    theme: forcedLightRoutes.includes(currentPathname)
-      ? Theme.LIGHT
-      : getTheme(),
-  };
+  return data(
+    {
+      user,
+      honeypotProps: await honeypot.getInputProps(),
+      theme: forcedLightRoutes.includes(currentPathname)
+        ? Theme.LIGHT
+        : getTheme(),
+    },
+    { headers },
+  );
 }
 
 export function App() {

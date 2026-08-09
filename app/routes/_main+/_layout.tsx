@@ -1,6 +1,15 @@
+import {
+  BellIcon,
+  ChevronRightIcon,
+  SunMoonIcon,
+  UsersIcon,
+} from "lucide-react";
+import { Link, Outlet, useRouteLoaderData } from "react-router";
+import { Theme, useTheme } from "remix-themes";
+import type { UserSelectType } from "~/.server/db/schema/auth";
 import { AppLogo } from "~/components/icons/app-logo";
-import type { Route } from "./+types/$username.boards";
-import { Link } from "react-router";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,24 +22,11 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { Button } from "~/components/ui/button";
-import {
-  BellIcon,
-  ChevronRightIcon,
-  SunMoonIcon,
-  UsersIcon,
-} from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { requireUser } from "~/.server/session";
 import { getInitials } from "~/lib/utils";
-import type { UserSelectType } from "~/.server/db/schema/auth";
-import { Theme, useTheme } from "remix-themes";
+import type { loader } from "~/root";
 
-export const meta: Route.MetaFunction = () => [{ title: "Boards | BoardHub" }];
-
-export const loader = ({ request }: Route.LoaderArgs) => requireUser(request);
-
-export default function Page({ loaderData }: Route.ComponentProps) {
+export default function Page() {
+  const data = useRouteLoaderData<typeof loader>("root");
   return (
     <>
       <header className="flex items-center justify-between border-b px-2 py-1">
@@ -53,9 +49,13 @@ export default function Page({ loaderData }: Route.ComponentProps) {
             <DropdownMenuContent></DropdownMenuContent>
           </DropdownMenu>
 
-          <UserDropdownMenu user={loaderData} />
+          <UserDropdownMenu user={data?.user} />
         </div>
       </header>
+
+      <main className="p-4">
+        <Outlet />
+      </main>
     </>
   );
 }
@@ -63,7 +63,10 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 function UserDropdownMenu({
   user,
 }: {
-  user: Pick<UserSelectType, "name" | "email" | "username" | "photo">;
+  user:
+    | Pick<UserSelectType, "name" | "email" | "username" | "photo">
+    | null
+    | undefined;
 }) {
   const [theme, themeSet] = useTheme();
   return (
@@ -71,8 +74,8 @@ function UserDropdownMenu({
       <DropdownMenuTrigger asChild>
         <Button className="rounded" variant="ghost" size="icon">
           <Avatar>
-            <AvatarImage src={user.photo ?? ""} alt={`@${user.username}`} />
-            <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+            <AvatarImage src={user?.photo ?? ""} alt={`@${user?.username}`} />
+            <AvatarFallback>{getInitials(user?.name ?? "")}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
@@ -81,12 +84,12 @@ function UserDropdownMenu({
           <DropdownMenuLabel>ACCOUNT</DropdownMenuLabel>
           <div className="flex items-center gap-2">
             <Avatar>
-              <AvatarImage src={user.photo ?? ""} alt={`@${user.username}`} />
-              <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+              <AvatarImage src={user?.photo ?? ""} alt={`@${user?.username}`} />
+              <AvatarFallback>{getInitials(user?.name ?? "")}</AvatarFallback>
             </Avatar>
             <div>
-              <p>{user.name}</p>
-              <p>{user.email}</p>
+              <p>{user?.name}</p>
+              <p>{user?.email}</p>
             </div>
           </div>
           <DropdownMenuItem asChild>
@@ -102,13 +105,15 @@ function UserDropdownMenu({
         <DropdownMenuGroup>
           <DropdownMenuLabel>BOARDHUB</DropdownMenuLabel>
           <DropdownMenuItem asChild>
-            <Link to={`/${user.username}/profile`}>Profile and visibility</Link>
+            <Link to={`/${user?.username}/profile`}>
+              Profile and visibility
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link to={`/${user.username}/cards`}>Cards</Link>
+            <Link to={`/${user?.username}/cards`}>Cards</Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link to={`/${user.username}/settings`}>Settings</Link>
+            <Link to={`/${user?.username}/settings`}>Settings</Link>
           </DropdownMenuItem>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
