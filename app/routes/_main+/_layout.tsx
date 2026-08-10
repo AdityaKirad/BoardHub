@@ -1,6 +1,8 @@
 import {
   BellIcon,
   ChevronRightIcon,
+  CircleCheckIcon,
+  CircleIcon,
   SunMoonIcon,
   UsersIcon,
 } from "lucide-react";
@@ -123,9 +125,11 @@ function UserDropdownMenu({
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent>
               <DropdownMenuItem onClick={() => themeSet(Theme.LIGHT)}>
+                {theme === Theme.LIGHT ? <CircleCheckIcon /> : <CircleIcon />}
                 Light
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => themeSet(Theme.DARK)}>
+                {theme === Theme.DARK ? <CircleCheckIcon /> : <CircleIcon />}
                 Dark
               </DropdownMenuItem>
             </DropdownMenuSubContent>
