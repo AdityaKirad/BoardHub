@@ -21,10 +21,34 @@ export default function List({
   list: Pick<ListSelectType, "id" | "title"> & { cards: CardSelectType[] };
 }) {
   const [createCard, createCardSet] = useState(false);
+  const [editCardTitle, editCardTitleSet] = useState(false);
   return (
     <Card className="max-h-[calc(100%-3rem)] min-w-0 shrink-0 basis-64 [--card-spacing:--spacing(2)]">
       <CardHeader className="flex items-center">
-        <span>{list.title}</span>
+        {editCardTitle ? (
+          <Form className="flex-1" method="POST">
+            <input type="hidden" name="listId" value={list.id} />
+            <input type="hidden" name="action" value="update-list-title" />
+            <Textarea
+              className="resize-none"
+              name="title"
+              defaultValue={list.title}
+              onKeyDown={(evt) => {
+                if (evt.key === "Enter") {
+                  evt.preventDefault();
+                  editCardTitleSet(false);
+                  (evt.target as HTMLTextAreaElement).form?.requestSubmit();
+                }
+              }}
+            />
+          </Form>
+        ) : (
+          <button
+            className="h-8 flex-1 px-3 text-left"
+            onClick={() => editCardTitleSet(true)}>
+            {list.title}
+          </button>
+        )}
         {list.cards.length}
       </CardHeader>
       <CardContent className="space-y-1 overflow-y-auto">

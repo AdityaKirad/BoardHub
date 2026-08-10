@@ -22,6 +22,11 @@ const schema = z.discriminatedUnion("action", [
     listId: z.string(),
   }),
   z.object({
+    action: z.literal("update-list-title"),
+    listId: z.string(),
+    title: z.string(),
+  }),
+  z.object({
     action: z.literal("toggle-card-completed"),
     cardId: z.string(),
   }),
@@ -66,6 +71,11 @@ export async function action({ params, request }: Route.ActionArgs) {
       ...parsed.data,
       position: sql`(SELECT COALESCE(MAX(${card.position}), 0) + 1 FROM ${card} WHERE ${card.listId} = ${parsed.data.listId})`,
     });
+  } else if (action === "update-list-title") {
+    await db
+      .update(list)
+      .set({ title: parsed.data.title })
+      .where(eq(list.id, parsed.data.listId));
   } else if (action === "toggle-card-completed") {
     await db
       .update(card)
