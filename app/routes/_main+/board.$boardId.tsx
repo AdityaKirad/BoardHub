@@ -7,7 +7,7 @@ import { useState } from "react";
 import { Form } from "react-router";
 import { z } from "zod";
 import { card, list } from "~/.server/db/schema/workspace";
-import { sql } from "drizzle-orm";
+import { eq, not, sql } from "drizzle-orm";
 import { Textarea } from "~/components/ui/textarea";
 import List from "../../components/list";
 
@@ -20,6 +20,10 @@ const schema = z.discriminatedUnion("action", [
     action: z.literal("create-card"),
     title: z.string(),
     listId: z.string(),
+  }),
+  z.object({
+    action: z.literal("toggle-card-completed"),
+    cardId: z.string(),
   }),
 ]);
 
@@ -43,10 +47,9 @@ export async function action({ params, request }: Route.ActionArgs) {
 
   const formData = await request.formData();
 
-  const parsed = schema.safeParse(formData);
+  const parsed = schema.safeParse(Object.fromEntries(formData));
 
   if (!parsed.success) {
-    console.log("schema parsing failed: ", parsed.error);
     return null;
   }
 
@@ -63,6 +66,13 @@ export async function action({ params, request }: Route.ActionArgs) {
       ...parsed.data,
       position: sql`(SELECT COALESCE(MAX(${card.position}), 0) + 1 FROM ${card} WHERE ${card.listId} = ${parsed.data.listId})`,
     });
+  } else if (action === "toggle-card-completed") {
+    await db
+      .update(card)
+      .set({
+        completed: not(card.completed),
+      })
+      .where(eq(card.id, parsed.data.cardId));
   }
 
   return null;
