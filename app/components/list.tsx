@@ -3,12 +3,7 @@ import { Form } from "react-router";
 import { Textarea } from "~/components/ui/textarea";
 import { Button } from "~/components/ui/button";
 import { PlusIcon, XIcon } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "~/components/ui/card";
+import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import type {
   CardSelectType,
   ListSelectType,
@@ -51,15 +46,14 @@ export default function List({
         )}
         {list.cards.length}
       </CardHeader>
-      <CardContent className="space-y-1 overflow-y-auto">
+      <CardContent className="space-y-2 overflow-y-auto">
         {list.cards.map((card) => (
           <ListCard key={card.id} card={card} />
         ))}
-      </CardContent>
-      <CardFooter>
         {createCard ? (
-          <Form method="POST">
+          <Form className="space-y-2" method="POST">
             <Textarea
+              className="min-h-10 resize-none focus-visible:border-none focus-visible:ring-0"
               placeholder="Enter a title or paste a link"
               name="title"
             />
@@ -68,7 +62,10 @@ export default function List({
               <Button type="submit" name="action" value="create-card">
                 Add card
               </Button>
-              <Button size="icon" onClick={() => createCardSet(false)}>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => createCardSet(false)}>
                 <XIcon />
               </Button>
             </div>
@@ -81,7 +78,7 @@ export default function List({
             <PlusIcon /> Create card
           </Button>
         )}
-      </CardFooter>
+      </CardContent>
     </Card>
   );
 }
