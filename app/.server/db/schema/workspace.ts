@@ -27,7 +27,7 @@ export const list = sqliteTable("list", {
   title: text().notNull(),
   color: text(),
   archived: integer({ mode: "boolean" }).notNull().default(false),
-  position: integer().notNull(),
+  position: text().notNull(),
   createdAt: timestamps.createdAt,
   updatedAt: timestamps.updatedAt,
 });
@@ -40,7 +40,7 @@ export const card = sqliteTable("card", {
   title: text().notNull(),
   description: text(),
   completed: integer({ mode: "boolean" }).notNull().default(false),
-  position: integer().notNull(),
+  position: text().notNull(),
   createdAt: timestamps.createdAt,
   updatedAt: timestamps.updatedAt,
 });
