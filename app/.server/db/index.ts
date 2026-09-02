@@ -18,6 +18,7 @@ class MyLogger implements Logger {
 
 const globalForClient = globalThis as unknown as {
   client: Client | undefined;
+  pragmaSet: boolean | undefined;
 };
 
 const client =
@@ -27,7 +28,17 @@ const client =
     authToken: env.DATABASE_AUTH_TOKEN,
   });
 
-if (env.NODE_ENV !== "production") globalForClient.client = client;
+if (env.NODE_ENV !== "production") {
+  globalForClient.client = client;
+}
+
+if (!globalForClient.pragmaSet) {
+  await client.execute("PRAGMA journal_mode=WAL;");
+  await client.execute("PRAGMA buys_timeout = 5000;");
+  if (env.NODE_ENV !== "production") {
+    globalForClient.pragmaSet = true;
+  }
+}
 
 export const db = drizzle(client, {
   schema: {

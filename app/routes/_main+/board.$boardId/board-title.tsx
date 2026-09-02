@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { useFetcher } from "react-router";
 import { Button } from "~/components/ui/button";
@@ -6,7 +6,7 @@ import { Input } from "~/components/ui/input";
 import { useOutsideClick } from "~/hooks/use-outside-click";
 import { ACTIONS } from "./action";
 
-export function BoardTitle({ title }: { title: string | undefined }) {
+export function BoardTitle({ title }: { title: string }) {
   const fetcher = useFetcher();
   const ref = useRef<React.ComponentRef<typeof Input>>(null);
   const [edit, editSet] = useState(false);
@@ -35,6 +35,10 @@ export function BoardTitle({ title }: { title: string | undefined }) {
   }
 
   useOutsideClick(ref, updateTitle);
+
+  useEffect(() => {
+    document.title = `${title} | BoardHub`;
+  }, [title]);
 
   return edit ? (
     <fetcher.Form

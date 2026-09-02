@@ -7,11 +7,14 @@ import { useOutsideClick } from "~/hooks/use-outside-click";
 import { ACTIONS } from "./action";
 import { Form, useSubmit } from "react-router";
 import { createId } from "@paralleldrive/cuid2";
+import { generateKeyBetween } from "fractional-indexing";
 
 export function CreateList({
+  lastListPosition,
   totalLists,
   onNewList,
 }: {
+  lastListPosition: string | null;
   totalLists: number | undefined;
   onNewList: () => void;
 }) {
@@ -28,8 +31,9 @@ export function CreateList({
     const formData = new FormData();
 
     formData.append("action", ACTIONS.CREATE_LIST);
-    formData.append("id", createId());
+    formData.append("listId", createId());
     formData.append("title", textAreaRef.current.value);
+    formData.append("position", generateKeyBetween(lastListPosition, null));
 
     void submit(formData, { method: "POST", navigate: false, flushSync: true });
 

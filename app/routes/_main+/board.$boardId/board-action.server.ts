@@ -1,10 +1,16 @@
 import { requireUser } from "~/.server/session";
 import type { Route } from "./+types/route";
 import { schema } from "./board-action.schema";
-import { handleCreateList, handleUpdateListTitle } from "./list-actions.server";
+import {
+  handleCreateList,
+  handleMoveList,
+  handleUpdateListTitle,
+} from "./list-actions.server";
 import {
   handleCreateCard,
+  handleMoveCard,
   handleToggleCardCompleted,
+  handleUpdateCardTitle,
 } from "./card-actions.server";
 import { db } from "~/.server/db";
 import { board } from "~/.server/db/schema/workspace";
@@ -28,6 +34,12 @@ export async function action({ params, request }: Route.ActionArgs) {
     case "create-card":
       await handleCreateCard(parsed.data);
       break;
+    case "move-list":
+      await handleMoveList(parsed.data);
+      break;
+    case "move-card":
+      await handleMoveCard(parsed.data);
+      break;
     case "update-board-title":
       await updateBoardTitle({ ...parsed.data, boardId: params.boardId });
       break;
@@ -35,6 +47,7 @@ export async function action({ params, request }: Route.ActionArgs) {
       await handleUpdateListTitle(parsed.data);
       break;
     case "update-card-title":
+      await handleUpdateCardTitle(parsed.data);
       break;
     case "toggle-card-completion":
       await handleToggleCardCompleted(parsed.data);

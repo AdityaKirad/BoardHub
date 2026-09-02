@@ -1,15 +1,14 @@
 import { db } from "~/.server/db";
 import { card } from "~/.server/db/schema/workspace";
 import { eq } from "drizzle-orm";
-import { getPositionAtIndex, isAlreadyBetween } from "./position";
 
 export const handleCreateCard = async ({
-  id,
+  cardId: id,
   listId,
   position,
   title,
 }: {
-  id: string;
+  cardId: string;
   listId: string;
   position: string;
   title: string;
@@ -21,6 +20,14 @@ export const handleCreateCard = async ({
     position,
   });
 };
+
+export const handleUpdateCardTitle = ({
+  cardId,
+  title,
+}: {
+  cardId: string;
+  title: string;
+}) => db.update(card).set({ title }).where(eq(card.id, cardId));
 
 export const handleToggleCardCompleted = ({
   cardId,
@@ -43,39 +50,5 @@ export const handleMoveCard = async ({
 }: {
   cardId: string;
   listId: string;
-  position: number;
-}) => {
-  const currentCard = await db.query.card.findFirst({
-    where: (card, { eq }) => eq(card.id, cardId),
-  });
-
-  if (!currentCard) return;
-
-  const targetCards = await db.query.card.findMany({
-    orderBy: (card, { asc }) => [asc(card.position)],
-    where: (card, { eq }) => eq(card.listId, listId),
-  });
-
-  const otherCards = targetCards.filter((item) => item.id !== cardId);
-  const {
-    position: newPosition,
-    before,
-    after,
-  } = getPositionAtIndex(otherCards, position);
-
-  if (
-    currentCard.listId === listId &&
-    isAlreadyBetween({
-      before,
-      after,
-      position: currentCard.position,
-    })
-  ) {
-    return;
-  }
-
-  return db
-    .update(card)
-    .set({ listId, position: newPosition })
-    .where(eq(card.id, cardId));
-};
+  position: string;
+}) => db.update(card).set({ listId, position }).where(eq(card.id, cardId));

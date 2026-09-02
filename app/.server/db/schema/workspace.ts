@@ -52,9 +52,7 @@ export const workspaceMember = sqliteTable("workspace_member", {
   userId: text()
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  role: text({ enum: [""] })
-    .notNull()
-    .default(""),
+  role: text().notNull().default(""),
 });
 
 export const boardRelations = relations(board, ({ one, many }) => ({

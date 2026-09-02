@@ -3,18 +3,9 @@ import { Button } from "~/components/ui/button";
 import { Textarea } from "~/components/ui/textarea";
 import { useOutsideClick } from "~/hooks/use-outside-click";
 import { XIcon } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { Form, useSubmit } from "react-router";
-import { ACTIONS } from "./action";
-
-export interface CreatedCard {
-  id: string;
-  listId: string;
-  title: string;
-  description: null;
-  position: string;
-  completed: boolean;
-}
+import { ACTIONS } from "../action";
 
 export function CreateCard({
   listId,
@@ -24,7 +15,7 @@ export function CreateCard({
 }: {
   listId: string;
   position: string;
-  onNewCard: (card: CreatedCard) => void;
+  onNewCard: () => void;
   onCancel: () => void;
 }) {
   const submit = useSubmit();
@@ -36,14 +27,12 @@ export function CreateCard({
       return;
     }
 
-    const id = createId();
-    const title = textAreaRef.current.value;
     const formData = new FormData();
 
     formData.append("action", ACTIONS.CREATE_CARD);
-    formData.append("id", id);
+    formData.append("cardId", createId());
     formData.append("listId", listId);
-    formData.append("title", title);
+    formData.append("title", textAreaRef.current.value);
     formData.append("position", position);
 
     void submit(formData, {
@@ -52,22 +41,11 @@ export function CreateCard({
       flushSync: true,
     });
 
-    onNewCard({
-      id,
-      listId,
-      title,
-      description: null,
-      position,
-      completed: false,
-    });
+    onNewCard();
 
     textAreaRef.current.value = "";
     textAreaRef.current.focus();
   }
-
-  useEffect(() => {
-    textAreaRef.current?.focus();
-  }, []);
 
   useOutsideClick(formRef, onCancel);
 
@@ -94,9 +72,11 @@ export function CreateCard({
               onCancel();
             }
           }}
+          // eslint-disable-next-line jsx-a11y/no-autofocus
+          autoFocus
         />
         <div className="flex gap-2">
-          <Button type="submit" name="action" value="create-card">
+          <Button type="submit" name="action" value={ACTIONS.CREATE_CARD}>
             Add card
           </Button>
           <Button type="button" variant="ghost" size="icon" onClick={onCancel}>

@@ -4,15 +4,27 @@ import { ACTIONS } from "./action";
 export const schema = z.discriminatedUnion("action", [
   z.object({
     action: z.literal(ACTIONS.CREATE_LIST),
-    id: z.string(),
+    listId: z.string(),
     title: z.string(),
+    position: z.string(),
   }),
   z.object({
     action: z.literal(ACTIONS.CREATE_CARD),
-    id: z.string(),
-    title: z.string(),
+    cardId: z.string(),
     listId: z.string(),
+    title: z.string(),
     position: z.string(),
+  }),
+  z.object({
+    action: z.literal(ACTIONS.MOVE_LIST),
+    listId: z.string(),
+    position: z.string().min(2),
+  }),
+  z.object({
+    action: z.literal(ACTIONS.MOVE_CARD),
+    cardId: z.string(),
+    listId: z.string(),
+    position: z.string().min(2),
   }),
   z.object({
     action: z.literal(ACTIONS.UPDATE_BOARD_TITLE),
