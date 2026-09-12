@@ -1,4 +1,3 @@
-import type { CardSelectType } from "~/.server/db/schema/workspace";
 import { Button } from "~/components/ui/button";
 import { Textarea } from "~/components/ui/textarea";
 import { useOutsideClick } from "~/hooks/use-outside-click";
@@ -6,10 +5,13 @@ import { useRef, useState } from "react";
 import { createPortal, flushSync } from "react-dom";
 import { useFetcher, type FetcherWithComponents } from "react-router";
 import { ACTIONS } from "../action";
+import type { Card } from "../hooks";
+
+type CardTitleProps = Pick<Card, "id" | "title">;
 
 export function useEditCardTitle(
-  itemRef: React.RefObject<React.ComponentRef<"li"> | null>,
-  card: Pick<CardSelectType, "id" | "title">,
+  card: CardTitleProps,
+  itemRef?: React.RefObject<React.ComponentRef<"li"> | null>,
 ) {
   const fetcher = useFetcher();
   const formRef = useRef<React.ComponentRef<typeof fetcher.Form>>(null);
@@ -30,7 +32,7 @@ export function useEditCardTitle(
   const closeEditor = () => editSet(false);
 
   function openEditor() {
-    const rect = itemRef.current?.getBoundingClientRect();
+    const rect = itemRef?.current?.getBoundingClientRect();
 
     if (!rect) {
       return;
@@ -92,7 +94,7 @@ export function EditCardTitle<T>({
   closeEditor,
   updateTitle,
 }: {
-  card: Pick<CardSelectType, "id" | "title">;
+  card: CardTitleProps;
   editorRect: Pick<DOMRect, "left" | "top" | "width">;
   fetcher: FetcherWithComponents<T>;
   formRef: React.RefObject<HTMLFormElement | null>;

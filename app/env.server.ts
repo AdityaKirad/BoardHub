@@ -6,7 +6,10 @@ export const env = createEnv({
     APP_URL: z.string().url(),
     AUTH_SECRET: z.string().length(44),
     DATABASE_URL: z.string().url(),
-    DATABASE_AUTH_TOKEN: z.string().optional(),
+    DATABASE_AUTH_TOKEN:
+      process.env.NODE_ENV !== "production"
+        ? z.string().optional()
+        : z.string(),
     DISCORD_CLIENT_ID: z.string(),
     DISCORD_CLIENT_SECRET: z.string(),
     GITHUB_CLIENT_ID: z.string(),

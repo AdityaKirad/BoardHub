@@ -45,7 +45,7 @@ export default function Page({ loaderData: { board } }: Route.ComponentProps) {
   const scrollAreaRef = useRef<React.ComponentRef<"ul">>(null);
   const lists = useOptimisticLists(board.lists);
 
-  useBoardDnd(lists);
+  useBoardDnd(lists, scrollAreaRef);
 
   return (
     <div className="relative h-[calc(100vh-5.05rem)] supports-[height:100dvh]:h-[calc(100dvh-5.05rem)]">

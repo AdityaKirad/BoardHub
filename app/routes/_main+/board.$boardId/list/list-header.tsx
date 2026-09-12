@@ -1,33 +1,44 @@
 import { useRef, useState } from "react";
 import { Form, useFetcher } from "react-router";
-import type { ListSelectType } from "~/.server/db/schema/workspace";
 import { Textarea } from "~/components/ui/textarea";
 import { ACTIONS } from "../action";
 import { useOutsideClick } from "~/hooks/use-outside-click";
 import { flushSync } from "react-dom";
+import type { List } from "../hooks";
 
-export function ListTitle({
-  list,
-  totalCards,
-}: {
-  list: Pick<ListSelectType, "id" | "title">;
+interface ListHeaderProps {
+  ref?: React.RefObject<HTMLDivElement | null>;
+  list: Pick<List, "id" | "title">;
   totalCards: number;
-}) {
+}
+
+export function ListHeader({ ref, list, totalCards }: ListHeaderProps) {
+  return (
+    <div className="bg-card flex items-center gap-1 px-2 pt-2" ref={ref}>
+      <ListTitle {...list} />
+      {totalCards}
+    </div>
+  );
+}
+
+function ListTitle({ id, title }: Pick<ListHeaderProps, "list">["list"]) {
   const fetcher = useFetcher();
   const ref = useRef<React.ComponentRef<typeof Textarea>>(null);
   const [edit, editSet] = useState(false);
 
-  const optimisticTitle =
-    (fetcher.formData?.get("title") as string) ?? list.title;
+  if (fetcher.formData?.has("title")) {
+    // eslint-disable-next-line react-hooks/immutability
+    title = fetcher.formData?.get("title") as string;
+  }
 
   function updateTitle() {
     const currentValue = ref.current?.value;
 
-    if (currentValue && currentValue !== list.title) {
+    if (currentValue && currentValue !== title) {
       const formData = new FormData();
 
       formData.append("action", ACTIONS.UPDATE_LIST_TITLE);
-      formData.append("listId", list.id);
+      formData.append("listId", id);
       formData.append("title", currentValue);
 
       void fetcher.submit(formData, {
@@ -41,14 +52,14 @@ export function ListTitle({
 
   useOutsideClick(ref, updateTitle);
   return (
-    <h2 className="bg-card flex items-center gap-1 px-2 pt-2">
+    <h2 className="flex-1">
       {edit ? (
         <Form className="flex-1" method="POST" onSubmit={updateTitle}>
           <Textarea
             className="resize-none"
             name="title"
             ref={ref}
-            defaultValue={optimisticTitle}
+            defaultValue={title}
             onKeyDown={(evt) => {
               if (evt.key === "Escape" || evt.key === "Enter") {
                 evt.preventDefault();
@@ -60,15 +71,14 @@ export function ListTitle({
         </Form>
       ) : (
         <button
-          className="min-h-8 flex-1 text-left"
+          className="min-h-8 w-full flex-1 cursor-pointer text-left"
           onClick={() => {
             flushSync(() => editSet(true));
             ref.current?.focus();
           }}>
-          {optimisticTitle}
+          {title}
         </button>
       )}
-      {totalCards}
     </h2>
   );
 }

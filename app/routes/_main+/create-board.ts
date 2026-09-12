@@ -26,7 +26,7 @@ export async function action({ request }: Route.ActionArgs) {
     .values({
       userId: id,
       title: submission.value.title,
-      background: { value: "blue", type: "color" },
+      background: "blue",
     })
     .returning({ id: board.id });
 

@@ -63,6 +63,7 @@ export function BoardTitle({ title }: { title: string }) {
     </fetcher.Form>
   ) : (
     <Button
+      className="cursor-pointer"
       variant="ghost"
       onClick={() => {
         flushSync(() => editSet(true));

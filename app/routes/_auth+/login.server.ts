@@ -4,7 +4,6 @@ import {
   sessionCookieOptions,
 } from "~/.server/cookies/session";
 import { createCookie, redirect } from "react-router";
-import { safeRedirect } from "remix-utils/safe-redirect";
 import type {
   SessionSelectType,
   UserSelectType,
@@ -57,8 +56,10 @@ export async function handleNewSession({
     }),
   );
 
+  console.log(redirectTo);
+
   // eslint-disable-next-line @typescript-eslint/only-throw-error
-  throw redirect(safeRedirect(redirectTo, `/${user.username}/boards`), {
+  throw redirect(redirectTo ?? `/${user.username}/boards`, {
     headers,
   });
 }

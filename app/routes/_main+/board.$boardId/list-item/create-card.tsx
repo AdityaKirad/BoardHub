@@ -76,9 +76,7 @@ export function CreateCard({
           autoFocus
         />
         <div className="flex gap-2">
-          <Button type="submit" name="action" value={ACTIONS.CREATE_CARD}>
-            Add card
-          </Button>
+          <Button type="submit">Add card</Button>
           <Button type="button" variant="ghost" size="icon" onClick={onCancel}>
             <XIcon />
           </Button>

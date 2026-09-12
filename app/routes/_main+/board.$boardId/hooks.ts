@@ -5,80 +5,16 @@ import type { Route } from "./+types/route";
 import { monitorForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { extractClosestEdge } from "@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge";
 import { generateKeyBetween } from "fractional-indexing";
+import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
+import { unsafeOverflowAutoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/unsafe-overflow/element";
+import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 
-interface BaseType {
-  id: string;
-  title: string | null;
-  position: string;
-}
+type Lists = Route.ComponentProps["loaderData"]["board"]["lists"];
+export type List = Lists[number];
+export type Cards = List["cards"];
+export type Card = Cards[number];
 
-interface CardType extends BaseType {
-  listId: string;
-}
-
-interface ListType extends BaseType {
-  cards: CardType[];
-}
-
-type BoardLists = Route.ComponentProps["loaderData"]["board"]["lists"];
-
-export function usePendingChanges() {
-  const fetchers = useFetchers();
-  const pendingLists: ListType[] = [];
-  const pendingCardsByList = new Map<string, CardType[]>();
-  const pendingCardIds = new Set<string>();
-  const pendingListIds = new Set<string>();
-
-  for (const fetcher of fetchers) {
-    const formData = fetcher.formData;
-
-    if (!formData) {
-      continue;
-    }
-
-    const action = formData.get("action");
-
-    if (action === ACTIONS.CREATE_LIST || action === ACTIONS.MOVE_LIST) {
-      const id = formData.get("id") as string;
-
-      pendingListIds.add(id);
-      pendingLists.push({
-        id,
-        title: formData.get("title") as string,
-        position: formData.get("position") as string,
-        cards: [],
-      });
-      continue;
-    }
-
-    if (action === ACTIONS.CREATE_CARD || action === ACTIONS.MOVE_CARD) {
-      const id = formData.get("id") as string;
-      const listId = formData.get("listId") as string;
-
-      pendingCardIds.add(id);
-
-      const card = {
-        id,
-        listId,
-        title: formData.get("title") as string,
-        position: formData.get("position") as string,
-      };
-
-      const list = pendingCardsByList.get(listId);
-
-      if (list) {
-        list.push(card);
-      } else {
-        pendingCardsByList.set(listId, [card]);
-      }
-    }
-  }
-  return { pendingCardIds, pendingCardsByList, pendingListIds, pendingLists };
-}
-
-export function useOptimisticLists(
-  lists: Route.ComponentProps["loaderData"]["board"]["lists"],
-) {
+export function useOptimisticLists(lists: Lists) {
   const fetchers = useFetchers();
 
   for (const fetcher of fetchers) {
@@ -172,109 +108,127 @@ export function useOptimisticLists(
   return lists;
 }
 
-export function useBoardDnd(lists: BoardLists) {
+export function useBoardDnd(
+  lists: Lists,
+  listContainerRef: React.RefObject<React.ComponentRef<"ul"> | null>,
+) {
   const submit = useSubmit();
   const listsRef = useRef(lists);
 
   useEffect(() => {
-    monitorForElements({
-      canMonitor: ({ source }) =>
-        source.data.type === "card" || source.data.type === "lists",
-      onDrop({ location, source }) {
-        const destination = location.current.dropTargets[0];
+    const element = listContainerRef.current;
 
-        if (!destination) {
-          return;
-        }
+    if (!element) {
+      return;
+    }
 
-        const currentLists = listsRef.current;
+    return combine(
+      autoScrollForElements({
+        element,
+        getConfiguration: () => ({ maxScrollSpeed: "standard" }),
+        canScroll: ({ source }) => source.data.type === "card",
+      }),
+      unsafeOverflowAutoScrollForElements({
+        element,
+        getConfiguration: () => ({ maxScrollSpeed: "standard" }),
+        canScroll: ({ source }) => source.data.type === "card",
+        getOverflow: () => ({
+          forLeftEdge: {
+            left: 1000,
+          },
+          forRightEdge: {
+            right: 1000,
+          },
+        }),
+      }),
+      monitorForElements({
+        canMonitor: ({ source }) =>
+          source.data.type === "card" || source.data.type === "list",
+        onDrop({ source, location }) {
+          const destination = location.current.dropTargets[0];
 
-        if (source.data.type === "list") {
-          const sourceListId = source.data.listId;
-          const targetListId = destination.data.listId;
-
-          if (sourceListId === targetListId) {
+          if (!destination) {
             return;
           }
 
-          const edge = extractClosestEdge(destination.data);
-          const order = currentLists.filter((list) => list.id !== sourceListId);
-          const targetIndex = order.findIndex(
-            (list) => list.id === targetListId,
-          );
-          const insertIndex = edge === "right" ? targetIndex + 1 : targetIndex;
+          const currentLists = listsRef.current;
 
-          const position = generateKeyBetween(
-            order[insertIndex - 1]?.position ?? null,
-            order[insertIndex]?.position ?? null,
-          );
+          if (source.data.type === "list") {
+            const sourceListId = source.data.listId as string;
+            const targetListId = destination.data.listId as string;
+
+            if (sourceListId === targetListId) {
+              return;
+            }
+
+            const edge = extractClosestEdge(destination.data);
+            const order = currentLists.filter((l) => l.id !== sourceListId);
+            const targetIndex = order.findIndex((l) => l.id === targetListId);
+            const insertIndex =
+              edge === "right" ? targetIndex + 1 : targetIndex;
+            const position = generateKeyBetween(
+              order[insertIndex - 1]?.position ?? null,
+              order[insertIndex]?.position ?? null,
+            );
+
+            const formData = new FormData();
+
+            formData.append("action", ACTIONS.MOVE_LIST);
+            formData.append("listId", sourceListId);
+            formData.append("position", position);
+
+            void submit(formData, { method: "POST", navigate: false });
+            return;
+          }
+
+          const cardId = source.data.cardId as string;
+          const targetListId = destination.data.listId as string;
+
+          if (
+            destination.data.type === "card" &&
+            destination.data.cardId === cardId
+          ) {
+            console.log("no op gurad", { data: destination.data, cardId });
+            return;
+          }
+
+          console.log("operation", { data: destination.data, cardId });
+
+          const siblings = (
+            currentLists.find((l) => l.id === targetListId)?.cards ?? []
+          ).filter((c) => c.id !== cardId);
+
+          let prevPos: string | null;
+          let nextPos: string | null;
+
+          if (destination.data.type === "card") {
+            const targetIndex = siblings.findIndex(
+              (c) => c.id === destination.data.cardId,
+            );
+            const edge = extractClosestEdge(destination.data);
+            const insertIndex =
+              edge === "bottom" ? targetIndex + 1 : targetIndex;
+            prevPos = siblings[insertIndex - 1]?.position ?? null;
+            nextPos = siblings[insertIndex]?.position ?? null;
+          } else {
+            prevPos = siblings.at(-1)?.position ?? null;
+            nextPos = null;
+          }
 
           const formData = new FormData();
 
-          formData.append("action", ACTIONS.MOVE_LIST);
-          formData.append("listId", sourceListId as string);
-          formData.append("position", position);
+          formData.append("action", ACTIONS.MOVE_CARD);
+          formData.append("cardId", cardId);
+          formData.append("listId", targetListId);
+          formData.append("position", generateKeyBetween(prevPos, nextPos));
 
           void submit(formData, { method: "POST", navigate: false });
+        },
+      }),
+    );
+  }, [submit, listContainerRef]);
 
-          return;
-        }
-
-        const cardId = source.data.cardId;
-        const listId = source.data.listId;
-        const card = (
-          currentLists.find((list) => list.id === listId)?.cards ?? []
-        ).find((card) => card.id === cardId);
-
-        if (!card) {
-          return;
-        }
-
-        if (
-          destination.data.type === "card" &&
-          destination.data.cardId === cardId
-        ) {
-          return;
-        }
-
-        let targetListId: string;
-        let prevPos: string | null;
-        let nextPos: string | null;
-
-        if (destination.data.type === "card") {
-          targetListId = destination.data.listId as string;
-          const siblings = (
-            currentLists.find((list) => list.id === targetListId)?.cards ?? []
-          ).filter((card) => card.id !== cardId);
-          const targetIndex = siblings.findIndex(
-            (card) => card.id === destination.data.cardId,
-          );
-          const edge = extractClosestEdge(destination.data);
-          const insertIndex = edge === "bottom" ? targetIndex + 1 : targetIndex;
-          prevPos = siblings[insertIndex - 1]?.position ?? null;
-          nextPos = siblings[insertIndex]?.position ?? null;
-        } else {
-          targetListId = destination.data.listId as string;
-          const siblings = (
-            currentLists.find((list) => list.id === targetListId)?.cards ?? []
-          ).filter((card) => card.id !== cardId);
-          prevPos = siblings.at(-1)?.position ?? null;
-          nextPos = null;
-        }
-
-        const position = generateKeyBetween(prevPos, nextPos);
-
-        const formData = new FormData();
-
-        formData.append("action", ACTIONS.MOVE_CARD);
-        formData.append("cardId", cardId as string);
-        formData.append("listId", targetListId);
-        formData.append("position", position);
-
-        void submit(formData, { method: "POST", navigate: false });
-      },
-    });
-  }, [submit]);
+  return { listContainerRef };
 }
 
 const sortPosition = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
