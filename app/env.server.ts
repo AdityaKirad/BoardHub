@@ -3,7 +3,10 @@ import { createEnv } from "@t3-oss/env-core";
 
 export const env = createEnv({
   server: {
-    APP_URL: z.string().url(),
+    APP_URL: z.preprocess(
+      (str) => process.env.URL ?? str,
+      process.env.NETLIFY ? z.string() : z.string().url(),
+    ),
     AUTH_SECRET: z.string().length(44),
     DATABASE_URL: z.string().url(),
     DATABASE_AUTH_TOKEN:
