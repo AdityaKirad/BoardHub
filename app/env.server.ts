@@ -21,5 +21,9 @@ export const env = createEnv({
     NODE_ENV: z.enum(["development", "production", "test"]),
     PLUNK_SECRET_KEY: z.string(),
   },
+  onValidationError: (issues) => {
+    console.error("❌ Invalid environment variables:", issues);
+    throw new Error("Invalid environment variables");
+  },
   runtimeEnv: process.env,
 });
