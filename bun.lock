@@ -12,6 +12,7 @@
         "@conform-to/react": "^1.19.4",
         "@conform-to/zod": "^1.19.4",
         "@libsql/client": "^0.17.4",
+        "@netlify/vite-plugin-react-router": "^4.0.0",
         "@oslojs/crypto": "^1.0.1",
         "@paralleldrive/cuid2": "^3.3.0",
         "@react-email/components": "^1.0.12",
@@ -315,6 +316,14 @@
     "@napi-rs/wasm-runtime": ["@napi-rs/wasm-runtime@1.1.6", "", { "dependencies": { "@tybys/wasm-util": "^0.10.3" }, "peerDependencies": { "@emnapi/core": "^1.7.1", "@emnapi/runtime": "^1.7.1" } }, "sha512-ZLv/JdUfkvOy9eCnnBaGfiO+XimbjebAeO+MRQqD/B+FR1tnRN0tpKSJHRbE8sFfS6aqsXZ67TQjfwfsxULVbg=="],
 
     "@neon-rs/load": ["@neon-rs/load@0.0.4", "", {}, "sha512-kTPhdZyTQxB+2wpiRcFWrDcejc4JI6tkPuS7UZCG4l6Zvc5kU/gGQ/ozvHTh1XR5tS+UlfAfGuPajjzQjCiHCw=="],
+
+    "@netlify/edge-functions": ["@netlify/edge-functions@3.0.8", "", { "dependencies": { "@netlify/types": "2.8.0" } }, "sha512-ml1oCDsRTTRmZS2nUj8XRD1b6+foEiZT3lPk7qQ4nv/jnxylHJ20ooPzPDH+cJmGjXFrMeR14/91W1o6D2ftBg=="],
+
+    "@netlify/functions": ["@netlify/functions@5.3.0", "", { "dependencies": { "@netlify/types": "2.8.0" } }, "sha512-FP+xCoZMkMOUsKa4UdG/oiK/2md1/TxuXvqqieaMVMgDbFFMaHI8h0oHCViUY73kPbKV6HyzayaSXGYXKpBSoQ=="],
+
+    "@netlify/types": ["@netlify/types@2.8.0", "", {}, "sha512-8/g0Pt6y6wXj5Ia5eeYLiXhRfWeqZXGXpGFeCiiQdUOem+FPtXdA4+YdGxqzWc7D0AvptKSO01KGeeVWHSu8Kg=="],
+
+    "@netlify/vite-plugin-react-router": ["@netlify/vite-plugin-react-router@4.0.0", "", { "dependencies": { "@netlify/edge-functions": "^3.0.6", "@netlify/functions": "^5.2.0", "@remix-run/node-fetch-server": "^0.13.0", "isbot": "^5.1.25", "tinyglobby": "^0.2.10" }, "peerDependencies": { "react-router": ">=7.9.0", "vite": ">=6.0.0" } }, "sha512-lwmeOwVm35yyM4w7piWPt+LAHnwt3IhpZfQ3MJGyFBk2kxh7ILBnFMMesoWc1hdj2owdsq0qhnX1wkpcrEjX3g=="],
 
     "@noble/hashes": ["@noble/hashes@2.2.0", "", {}, "sha512-IYqDGiTXab6FniAgnSdZwgWbomxpy9FtYvLKs7wCUs2a8RkITG+DFGO1DM9cr+E3/RgADRpFjrKVaJ1z6sjtEg=="],
 
