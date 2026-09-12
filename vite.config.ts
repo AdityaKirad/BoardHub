@@ -14,4 +14,7 @@ export default defineConfig({
   resolve: {
     tsconfigPaths: true,
   },
+  ssr: {
+    noExternal: ["@atlaskit/pragmatic-drag-and-drop"],
+  },
 });
