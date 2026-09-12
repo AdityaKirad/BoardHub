@@ -1,6 +1,6 @@
 import {
   getExpirationDate,
-  requireUser,
+  getUser,
   SESSION_CACHE_AGE,
 } from "~/.server/session";
 import type { Route } from "./+types/logout.$token";
@@ -18,7 +18,13 @@ import { parseCookies } from "~/.server/parse-cookies";
 import { sessionDataStorage } from "~/.server/session/session-data";
 
 export async function action({ request, params }: Route.ActionArgs) {
-  await requireUser(request);
+  const { user, headers: userHeaders } = await getUser(request);
+
+  if (!user) {
+    return redirect("/login", {
+      headers: userHeaders,
+    });
+  }
 
   const cookieHeader = request.headers.get("cookie");
 

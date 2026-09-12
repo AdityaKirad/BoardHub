@@ -1,10 +1,14 @@
-import { getUsers, requireUser } from "~/.server/session";
+import { getUsers } from "~/.server/session";
 import type { Route } from "./+types/logout";
 import { session } from "~/.server/db/schema/auth";
 import { db } from "~/.server/db";
 import { inArray } from "drizzle-orm";
 import { createCookie, data, Form, Link, redirect } from "react-router";
-import { isMultiSessionCookie, sessionCookieOptions } from "~/.server/cookies";
+import {
+  isMultiSessionCookie,
+  sessionCookie,
+  sessionCookieOptions,
+} from "~/.server/cookies";
 import { parseCookies } from "~/.server/parse-cookies";
 import { sessionDataStorage } from "~/.server/session/session-data";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -30,9 +34,17 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export async function action({ request }: Route.ActionArgs) {
-  await requireUser(request);
-
   const cookieHeader = request.headers.get("cookie");
+
+  const token = (await sessionCookie.parse(cookieHeader)) as string;
+
+  const { sessions, headers: usersHeaders } = await getUsers(request);
+
+  if (!sessions.find((session) => session.token === token)) {
+    return redirect("/login", {
+      headers: usersHeaders,
+    });
+  }
 
   const headers = new Headers();
 

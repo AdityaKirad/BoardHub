@@ -71,11 +71,9 @@ export async function action({ request }: Route.ActionArgs) {
     });
   }
 
-  const url = new URL(request.url);
-
   return handleNewSession({
     ...session,
-    redirectTo: url.searchParams.get("redirectTo"),
+    redirectTo: new URL(request.url).searchParams.get("redirectTo"),
   });
 }
 

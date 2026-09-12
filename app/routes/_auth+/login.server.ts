@@ -10,6 +10,7 @@ import type {
 } from "~/.server/db/schema/auth";
 import { sessionDataStorage } from "~/.server/session/session-data";
 import { getExpirationDate } from "~/.server/session";
+import { safeRedirect } from "remix-utils/safe-redirect";
 
 export async function handleNewSession({
   user,
@@ -56,10 +57,8 @@ export async function handleNewSession({
     }),
   );
 
-  console.log(redirectTo);
-
   // eslint-disable-next-line @typescript-eslint/only-throw-error
-  throw redirect(redirectTo ?? `/${user.username}/boards`, {
+  throw redirect(safeRedirect(redirectTo, `/${user.username}/boards`), {
     headers,
   });
 }

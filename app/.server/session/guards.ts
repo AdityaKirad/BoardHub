@@ -18,7 +18,7 @@ export async function requireUser(
   if (!user) {
     const url = new URL(request.url);
     url.searchParams.set("redirectTo", url.pathname + url.search);
-    url.pathname = "/flow/login";
+    url.pathname = "/login";
     // eslint-disable-next-line @typescript-eslint/only-throw-error
     throw redirect(url.toString(), {
       headers,
