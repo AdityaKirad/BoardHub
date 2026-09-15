@@ -105,4 +105,29 @@
     font-style: italic;
     shape-margin: 0.75rem;
   }
+
+  .tiptap {
+    @apply h-full outline-none;
+  }
+
+  .tiptap a {
+    color: var(--color-primary);
+    text-decoration: underline;
+  }
+
+  .tiptap :is(h1, h2, h3, h4, h5, h6) {
+    font-size: revert;
+    font-weight: revert;
+    margin: revert;
+  }
+
+  .tiptap :is(ul, ol) {
+    list-style: revert;
+    margin-left: 1rem;
+  }
+}
+
+@layer components {
+  .revert-description-editor-style {
+  }
 }

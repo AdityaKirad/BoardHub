@@ -3,13 +3,16 @@ import { useFetcher } from "react-router";
 import { ACTIONS } from "../action";
 import { CircleCheckIcon, CircleIcon } from "lucide-react";
 import type { Card } from "../hooks";
+import { cn } from "~/lib/utils";
 
 export function ToggleCardCompletion({
   card,
+  isEditing,
   isPreview,
 }: {
   card: Pick<Card, "id" | "completed">;
-  isPreview: boolean;
+  isEditing?: boolean;
+  isPreview?: boolean;
 }) {
   const fetcher = useFetcher();
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -50,11 +53,11 @@ export function ToggleCardCompletion({
   useEffect(() => () => clearTimeout(timeoutRef.current), []);
   return (
     <Comp
-      className={
-        !isPreview
-          ? "opacity-0 transition-opacity duration-300 ease-out group-hover:opacity-100 focus-visible:opacity-100"
-          : ""
-      }
+      className={cn({
+        "transition-opacity duration-300 ease-out group-hover:opacity-100 focus-visible:opacity-100":
+          !isPreview,
+        "opacity-0": !isEditing,
+      })}
       {...(!isPreview && {
         title: optimisticCompleted ? "Mark as incomplete" : "Mark as complete",
         onClick: handleClick,

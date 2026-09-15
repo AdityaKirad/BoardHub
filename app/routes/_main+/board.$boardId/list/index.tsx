@@ -68,7 +68,7 @@ function ListDisplay({
             )}
           {cards.map((card, index) => (
             <Fragment key={card.id}>
-              <ListItem {...card} />
+              <ListItem card={card} listTitle={list.title} />
               {createIndex === index + 1 && createPosition ? (
                 <CreateCard
                   listId={list.id}

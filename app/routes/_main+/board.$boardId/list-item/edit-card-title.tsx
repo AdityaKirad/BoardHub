@@ -1,11 +1,11 @@
 import { Button } from "~/components/ui/button";
 import { Textarea } from "~/components/ui/textarea";
-import { useOutsideClick } from "~/hooks/use-outside-click";
 import { useRef, useState } from "react";
 import { createPortal, flushSync } from "react-dom";
 import { useFetcher, type FetcherWithComponents } from "react-router";
 import { ACTIONS } from "../action";
 import type { Card } from "../hooks";
+import { Input } from "~/components/ui/input";
 
 type CardTitleProps = Pick<Card, "id" | "title">;
 
@@ -14,10 +14,13 @@ export function useEditCardTitle(
   itemRef?: React.RefObject<React.ComponentRef<"li"> | null>,
 ) {
   const fetcher = useFetcher();
-  const formRef = useRef<React.ComponentRef<typeof fetcher.Form>>(null);
+
+  const inputRef = useRef<React.ComponentRef<typeof Input>>(null);
   const textAreaRef = useRef<React.ComponentRef<typeof Textarea>>(null);
-  const [edit, editSet] = useState(false);
-  const [editorRect, editorRectSet] = useState<{
+
+  const [floatingEdit, floatingEditSet] = useState(false);
+  const [dialogTitleEdit, dialogTitleEditSet] = useState(false);
+  const [floatingEditorRect, floatingEditorRectSet] = useState<{
     left: number;
     top: number;
     width: number;
@@ -29,9 +32,12 @@ export function useEditCardTitle(
     title = fetcher.formData.get("title") as string;
   }
 
-  const closeEditor = () => editSet(false);
+  function closeFloatingEditor() {
+    floatingEditSet(false);
+    floatingEditorRectSet(null);
+  }
 
-  function openEditor() {
+  function openFloatingEditor() {
     const rect = itemRef?.current?.getBoundingClientRect();
 
     if (!rect) {
@@ -40,20 +46,20 @@ export function useEditCardTitle(
 
     const { left, top, width } = rect;
 
-    editorRectSet({ left, top, width });
-    flushSync(() => editSet(true));
+    floatingEditorRectSet({ left, top, width });
+    flushSync(() => floatingEditSet(true));
     textAreaRef.current?.focus();
   }
 
   function updateTitle() {
-    const currentValue = textAreaRef.current?.value;
+    const currentValue = textAreaRef.current?.value ?? inputRef.current?.value;
 
     if (!currentValue) {
       return;
     }
 
     if (currentValue !== card.title) {
-      closeEditor();
+      return;
     }
 
     const formData = new FormData();
@@ -67,20 +73,21 @@ export function useEditCardTitle(
       flushSync: true,
     });
 
-    closeEditor();
+    closeFloatingEditor();
+    dialogTitleEditSet(false);
   }
 
-  useOutsideClick(formRef, closeEditor);
-
   return {
-    edit,
-    editorRect,
+    dialogTitleEdit,
     fetcher,
-    formRef,
+    floatingEdit,
+    floatingEditorRect,
+    inputRef,
     textAreaRef,
     title,
-    openEditor,
-    closeEditor,
+    closeFloatingEditor,
+    dialogTitleEditSet,
+    openFloatingEditor,
     updateTitle,
   };
 }
@@ -89,17 +96,15 @@ export function EditCardTitle<T>({
   card,
   editorRect,
   fetcher,
-  formRef,
   textAreaRef,
-  closeEditor,
+  closeFloatingEditor,
   updateTitle,
 }: {
   card: CardTitleProps;
   editorRect: Pick<DOMRect, "left" | "top" | "width">;
   fetcher: FetcherWithComponents<T>;
-  formRef: React.RefObject<HTMLFormElement | null>;
   textAreaRef: React.RefObject<React.ComponentRef<typeof Textarea> | null>;
-  closeEditor: () => void;
+  closeFloatingEditor: () => void;
   updateTitle: () => void;
 }) {
   return createPortal(
@@ -108,7 +113,6 @@ export function EditCardTitle<T>({
       <fetcher.Form
         className="fixed z-50 space-y-2"
         method="POST"
-        ref={formRef}
         style={{
           left: editorRect.left,
           top: editorRect.top,
@@ -126,17 +130,65 @@ export function EditCardTitle<T>({
           onKeyDown={(evt) => {
             if (evt.key === "Escape") {
               evt.preventDefault();
-              closeEditor();
+              closeFloatingEditor();
             }
             if (evt.key === "Enter") {
               evt.preventDefault();
               updateTitle();
             }
           }}
+          onBlur={closeFloatingEditor}
         />
         <Button type="submit">Save</Button>
       </fetcher.Form>
     </>,
     document.body,
+  );
+}
+
+export function DialogEditCardTitle<T>({
+  dialogTitleEdit,
+  fetcher,
+  inputRef,
+  title,
+  onTitleButtonClick,
+  updateTitle,
+}: {
+  dialogTitleEdit: boolean;
+  fetcher: FetcherWithComponents<T>;
+  inputRef: React.RefObject<React.ComponentRef<typeof Input> | null>;
+  title: string;
+  onTitleButtonClick: () => void;
+  updateTitle: () => void;
+}) {
+  return !dialogTitleEdit ? (
+    <button
+      className="text-2xl font-medium"
+      onClick={() => {
+        flushSync(onTitleButtonClick);
+        inputRef.current?.focus();
+      }}>
+      {title}
+    </button>
+  ) : (
+    <fetcher.Form
+      method="POST"
+      onSubmit={(evt) => {
+        evt.preventDefault();
+        updateTitle();
+      }}>
+      <Input
+        ref={inputRef}
+        className="text-2xl!"
+        defaultValue={title}
+        onKeyDown={(evt) => {
+          if (evt.key === "Escape") {
+            evt.preventDefault();
+            updateTitle();
+          }
+        }}
+        onBlur={updateTitle}
+      />
+    </fetcher.Form>
   );
 }
