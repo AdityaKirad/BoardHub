@@ -2,6 +2,7 @@ import { requireUser } from "~/.server/session";
 import type { Route } from "./+types/route";
 import { schema } from "./board-action.schema";
 import {
+  handleCopyList,
   handleCreateList,
   handleMoveList,
   handleUpdateListTitle,
@@ -28,6 +29,12 @@ export async function action({ params, request }: Route.ActionArgs) {
   }
 
   switch (parsed.data.action) {
+    case "copy-list":
+      await handleCopyList({
+        ...parsed.data,
+        boardId: params.boardId,
+      });
+      break;
     case "create-list":
       await handleCreateList({ ...parsed.data, boardId: params.boardId });
       break;

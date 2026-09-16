@@ -26,28 +26,45 @@ export function useOptimisticLists(lists: Lists) {
 
     const action = formData.get("action");
 
-    if (action === ACTIONS.CREATE_LIST || action === ACTIONS.MOVE_LIST) {
-      const { listId, title, position } = Object.fromEntries(formData) as {
+    if (
+      action === ACTIONS.COPY_LIST ||
+      action === ACTIONS.CREATE_LIST ||
+      action === ACTIONS.MOVE_LIST
+    ) {
+      const { listId, newListId, title, position } = Object.fromEntries(
+        formData,
+      ) as {
         listId: string;
+        newListId: string;
         title: string;
         position: string;
       };
       const newLists =
-        action === ACTIONS.CREATE_LIST
+        action === ACTIONS.COPY_LIST
           ? [
               ...lists,
               {
+                ...lists.find((list) => list.id === listId),
                 title,
                 position,
-                id: listId,
-                archived: false,
-                color: "",
-                cards: [],
+                id: newListId,
               },
             ]
-          : lists.map((list) =>
-              list.id === listId ? { ...list, position } : list,
-            );
+          : action === ACTIONS.CREATE_LIST
+            ? [
+                ...lists,
+                {
+                  title,
+                  position,
+                  id: listId,
+                  archived: false,
+                  color: "",
+                  cards: [],
+                },
+              ]
+            : lists.map((list) =>
+                list.id === listId ? { ...list, position } : list,
+              );
 
       lists = newLists.sort((a, b) => sortPosition(a.position, b.position));
     }

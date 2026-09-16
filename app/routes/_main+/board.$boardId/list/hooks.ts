@@ -6,7 +6,6 @@ import {
 } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { generateKeyBetween } from "fractional-indexing";
 import { useEffect, useRef, useState } from "react";
-import { flushSync } from "react-dom";
 import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
 import { unsafeOverflowAutoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/unsafe-overflow/element";
 import {
@@ -51,8 +50,7 @@ export function useCreateCard(
     (cardContainerRef.current.scrollTop =
       cardContainerRef.current.scrollHeight);
 
-  const openCreateCard = (index: number) =>
-    flushSync(() => createIndexSet(index));
+  const openCreateCard = (index: number) => createIndexSet(index);
 
   function openCreateCardAtEnd() {
     openCreateCard(cards.length);

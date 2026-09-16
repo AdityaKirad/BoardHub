@@ -3,6 +3,13 @@ import { ACTIONS } from "./action";
 
 export const schema = z.discriminatedUnion("action", [
   z.object({
+    action: z.literal(ACTIONS.COPY_LIST),
+    listId: z.string(),
+    newListId: z.string(),
+    title: z.string(),
+    position: z.string(),
+  }),
+  z.object({
     action: z.literal(ACTIONS.CREATE_LIST),
     listId: z.string(),
     title: z.string(),

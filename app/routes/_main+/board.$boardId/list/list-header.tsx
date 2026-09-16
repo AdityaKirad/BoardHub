@@ -4,30 +4,33 @@ import { Textarea } from "~/components/ui/textarea";
 import { ACTIONS } from "../action";
 import { useOutsideClick } from "~/hooks/use-outside-click";
 import { flushSync } from "react-dom";
-import type { List } from "../hooks";
+import { ListActionDropdown } from "./list-action-dropdown";
+import { useListContext } from "./list-context";
 
 interface ListHeaderProps {
   ref?: React.RefObject<HTMLDivElement | null>;
-  list: Pick<List, "id" | "title">;
   totalCards: number;
 }
 
-export function ListHeader({ ref, list, totalCards }: ListHeaderProps) {
+export function ListHeader({ ref, totalCards }: ListHeaderProps) {
   return (
     <div className="bg-card flex items-center gap-1 px-2 pt-2" ref={ref}>
-      <ListTitle {...list} />
+      <ListTitle />
       {totalCards}
+      <ListActionDropdown />
     </div>
   );
 }
 
-function ListTitle({ id, title }: Pick<ListHeaderProps, "list">["list"]) {
+function ListTitle() {
   const fetcher = useFetcher();
   const ref = useRef<React.ComponentRef<typeof Textarea>>(null);
+  const { list } = useListContext();
   const [edit, editSet] = useState(false);
 
+  let title = list.title;
+
   if (fetcher.formData?.has("title")) {
-    // eslint-disable-next-line react-hooks/immutability
     title = fetcher.formData?.get("title") as string;
   }
 
@@ -38,7 +41,7 @@ function ListTitle({ id, title }: Pick<ListHeaderProps, "list">["list"]) {
       const formData = new FormData();
 
       formData.append("action", ACTIONS.UPDATE_LIST_TITLE);
-      formData.append("listId", id);
+      formData.append("listId", list.id);
       formData.append("title", currentValue);
 
       void fetcher.submit(formData, {

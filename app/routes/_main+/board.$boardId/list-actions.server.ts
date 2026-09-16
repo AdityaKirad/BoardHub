@@ -1,6 +1,51 @@
 import { eq } from "drizzle-orm";
 import { db } from "~/.server/db";
-import { list } from "~/.server/db/schema/workspace";
+import { card, list } from "~/.server/db/schema/workspace";
+
+export const handleCopyList = ({
+  boardId,
+  listId,
+  newListId,
+  title,
+  position,
+}: {
+  boardId: string;
+  listId: string;
+  newListId: string;
+  position: string;
+  title: string;
+}) =>
+  db.transaction(async (tx) => {
+    const [newList] = await tx
+      .insert(list)
+      .values({
+        boardId,
+        position,
+        title,
+        id: newListId,
+      })
+      .returning({ id: list.id });
+
+    if (!newList) {
+      throw new Error("Failed to create list");
+    }
+
+    const cards = await tx.query.card.findMany({
+      columns: {
+        title: true,
+        description: true,
+        completed: true,
+        position: true,
+      },
+      where: (card, { eq }) => eq(card.listId, listId),
+    });
+
+    if (cards.length) {
+      await tx
+        .insert(card)
+        .values(cards.map((card) => ({ ...card, listId: newList.id })));
+    }
+  });
 
 export const handleCreateList = async ({
   listId: id,
@@ -8,8 +53,8 @@ export const handleCreateList = async ({
   position,
   title,
 }: {
-  listId: string;
   boardId: string;
+  listId: string;
   position: string;
   title: string;
 }) =>

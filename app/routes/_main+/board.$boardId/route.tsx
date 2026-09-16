@@ -58,18 +58,21 @@ export default function Page({ loaderData: { board } }: Route.ComponentProps) {
         <ul
           className="flex w-full flex-1 items-start gap-4 overflow-x-auto overflow-y-hidden p-2"
           ref={scrollAreaRef}>
-          {lists.map((list) => (
-            <List key={list.id} list={list} />
+          {lists.map((list, index) => (
+            <List
+              key={list.id}
+              list={list}
+              nextListPosition={lists[index + 1]?.position}
+            />
           ))}
           <CreateList
-            lastListPosition={lists.at(-1)?.position ?? null}
-            totalLists={lists.length}
-            onNewList={() => {
-              if (scrollAreaRef.current) {
-                scrollAreaRef.current.scrollLeft =
-                  scrollAreaRef.current.scrollWidth;
-              }
-            }}
+            hasLists={lists.length > 0}
+            lastListPosition={lists.at(-1)?.position}
+            onNewList={() =>
+              scrollAreaRef.current &&
+              (scrollAreaRef.current.scrollLeft =
+                scrollAreaRef.current.scrollWidth)
+            }
           />
         </ul>
       </div>

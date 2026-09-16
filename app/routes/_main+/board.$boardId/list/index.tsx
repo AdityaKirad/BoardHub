@@ -9,12 +9,14 @@ import { ListHeader } from "./list-header";
 import { useCreateCard, useListDnd, type ListState } from "./hooks";
 import { createPortal } from "react-dom";
 import type { List } from "../hooks";
+import { ListContextProvider } from "./list-context";
 
 function ListDisplay({
   cardContainerRef,
   headerRef,
   listRef,
   list,
+  nextListPosition,
   state,
 }: {
   list: List;
@@ -22,6 +24,7 @@ function ListDisplay({
   cardContainerRef?: React.RefObject<React.ComponentRef<"ul"> | null>;
   headerRef?: React.RefObject<React.ComponentRef<"div"> | null>;
   listRef?: React.RefObject<React.ComponentRef<"li"> | null>;
+  nextListPosition?: string;
 }) {
   const {
     createIndex,
@@ -32,8 +35,9 @@ function ListDisplay({
     openCreateCardAtEnd,
   } = useCreateCard(list.cards, cardContainerRef);
   const cards = list.cards;
+
   return (
-    <>
+    <ListContextProvider value={{ list, nextListPosition, openCreateCard }}>
       {state.type === "is-column-over" && state.closestEdge === "left" && (
         <ListPlaceholder rect={state.rect} />
       )}
@@ -46,7 +50,7 @@ function ListDisplay({
           },
         )}
         ref={listRef}>
-        <ListHeader ref={headerRef} list={list} totalCards={cards.length} />
+        <ListHeader ref={headerRef} totalCards={cards.length} />
         <ul
           className={cn("relative min-h-0 flex-1 overflow-y-auto", {
             "p-2": cards.length || createIndex !== null,
@@ -100,11 +104,17 @@ function ListDisplay({
       {state.type === "is-column-over" && state.closestEdge === "right" && (
         <ListPlaceholder rect={state.rect} />
       )}
-    </>
+    </ListContextProvider>
   );
 }
 
-export function List({ list }: { list: List }) {
+export function List({
+  list,
+  nextListPosition,
+}: {
+  list: List;
+  nextListPosition: string | undefined;
+}) {
   const { cardContainerRef, listRef, headerRef, state } = useListDnd(list.id);
   return (
     <>
@@ -113,6 +123,7 @@ export function List({ list }: { list: List }) {
         headerRef={headerRef}
         listRef={listRef}
         list={list}
+        nextListPosition={nextListPosition}
         state={state}
       />
       {state.type === "preview" &&

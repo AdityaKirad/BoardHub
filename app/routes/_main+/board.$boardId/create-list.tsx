@@ -10,12 +10,12 @@ import { createId } from "@paralleldrive/cuid2";
 import { generateKeyBetween } from "fractional-indexing";
 
 export function CreateList({
+  hasLists,
   lastListPosition,
-  totalLists,
   onNewList,
 }: {
-  lastListPosition: string | null;
-  totalLists: number | undefined;
+  hasLists: boolean;
+  lastListPosition: string | undefined;
   onNewList: () => void;
 }) {
   const submit = useSubmit();
@@ -82,7 +82,7 @@ export function CreateList({
         flushSync(() => createSet(true));
         textAreaRef.current?.focus();
       }}>
-      <PlusIcon /> {totalLists ? "Add another list" : "Add list"}
+      <PlusIcon /> {hasLists ? "Add another list" : "Add list"}
     </Button>
   );
 }
