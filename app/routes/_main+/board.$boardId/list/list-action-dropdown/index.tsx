@@ -8,12 +8,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { Label } from "~/components/ui/label";
-import { Textarea } from "~/components/ui/textarea";
-import { ACTIONS } from "../action";
-import { generateKeyBetween } from "fractional-indexing";
-import { createId } from "@paralleldrive/cuid2";
-import { useListContext } from "./list-context";
+import type { ACTIONS } from "../../action";
+import { useListContext } from "../list-context";
+import { CopyListFormContent } from "./copy-list-form-content";
+import { MoveListFormContent } from "./move-list-form-content";
 
 type DROPDOWN_ACTIONS = keyof Pick<
   typeof ACTIONS,
@@ -28,12 +26,17 @@ const actionTitle: Record<DROPDOWN_ACTIONS, string> = {
 };
 
 export function ListActionDropdown() {
+  const { openCreateCard } = useListContext();
   const [open, openSet] = useState(false);
   const [action, actionSet] = useState<DROPDOWN_ACTIONS | null>(null);
-  const { list, nextListPosition, openCreateCard } = useListContext();
   const fetcher = useFetcher();
 
-  function handleCopyList(evt: React.SubmitEvent<HTMLFormElement>) {
+  function handleDropdownMenuItemSelect(evt: Event, action: DROPDOWN_ACTIONS) {
+    evt.preventDefault();
+    actionSet(action);
+  }
+
+  function handleSubmit(evt: React.SubmitEvent<HTMLFormElement>) {
     evt.preventDefault();
 
     void fetcher.submit(evt.currentTarget, {
@@ -79,39 +82,18 @@ export function ListActionDropdown() {
             <XIcon />
           </Button>
         </div>
-        {action === "COPY_LIST" ? (
+        {action ? (
           <fetcher.Form
             method="POST"
-            className="px-2"
-            onSubmit={handleCopyList}>
-            <div>
-              <Label htmlFor="title">Title</Label>
-              <Textarea
-                id="title"
-                name="title"
-                className="mt-2 min-h-16 resize-none"
-                defaultValue={list.title}
-                onKeyDown={(evt) => {
-                  if (evt.key === "Enter") {
-                    evt.preventDefault();
-                  } else if (evt.key === "Escape") {
-                    actionSet(null);
-                  }
-                }}
-              />
-            </div>
-
-            <input
-              type="hidden"
-              name="position"
-              value={generateKeyBetween(list.position, nextListPosition)}
-            />
-            <input type="hidden" name="listId" value={list.id} />
-            <input type="hidden" name="newListId" value={createId()} />
-            <input type="hidden" name="action" value={ACTIONS.COPY_LIST} />
-
-            <Button className="mt-2" type="submit">
-              Create
+            className="flex flex-col gap-2 px-2"
+            onSubmit={handleSubmit}>
+            {action === "COPY_LIST" ? (
+              <CopyListFormContent onEscape={() => actionSet(null)} />
+            ) : (
+              <MoveListFormContent />
+            )}
+            <Button className="w-fit" type="submit">
+              {action === "COPY_LIST" ? "Create" : "Move"}
             </Button>
           </fetcher.Form>
         ) : (
@@ -120,11 +102,16 @@ export function ListActionDropdown() {
               Add card
             </DropdownMenuItem>
             <DropdownMenuItem
-              onSelect={(evt) => {
-                evt.preventDefault();
-                actionSet("COPY_LIST");
-              }}>
+              onSelect={(evt) =>
+                handleDropdownMenuItemSelect(evt, "COPY_LIST")
+              }>
               Copy list
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={(evt) =>
+                handleDropdownMenuItemSelect(evt, "MOVE_LIST")
+              }>
+              Move list
             </DropdownMenuItem>
           </>
         )}

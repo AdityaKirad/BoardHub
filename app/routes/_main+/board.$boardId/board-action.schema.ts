@@ -24,6 +24,7 @@ export const schema = z.discriminatedUnion("action", [
   }),
   z.object({
     action: z.literal(ACTIONS.MOVE_LIST),
+    boardId: z.string().optional(),
     listId: z.string(),
     position: z.string().min(2),
   }),

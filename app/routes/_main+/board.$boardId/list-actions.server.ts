@@ -74,9 +74,11 @@ export const handleUpdateListTitle = ({
 }) => db.update(list).set({ title }).where(eq(list.id, listId));
 
 export const handleMoveList = async ({
+  boardId,
   listId,
   position,
 }: {
+  boardId?: string;
   listId: string;
   position: string;
-}) => db.update(list).set({ position }).where(eq(list.id, listId));
+}) => db.update(list).set({ boardId, position }).where(eq(list.id, listId));

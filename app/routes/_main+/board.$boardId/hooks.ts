@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { useFetchers, useSubmit } from "react-router";
+import { useFetchers, useParams, useSubmit } from "react-router";
 import { ACTIONS } from "./action";
 import type { Route } from "./+types/route";
 import { monitorForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
@@ -16,6 +16,7 @@ export type Card = Cards[number];
 
 export function useOptimisticLists(lists: Lists) {
   const fetchers = useFetchers();
+  const params = useParams();
 
   for (const fetcher of fetchers) {
     const formData = fetcher.formData;
@@ -31,20 +32,26 @@ export function useOptimisticLists(lists: Lists) {
       action === ACTIONS.CREATE_LIST ||
       action === ACTIONS.MOVE_LIST
     ) {
-      const { listId, newListId, title, position } = Object.fromEntries(
-        formData,
-      ) as {
-        listId: string;
-        newListId: string;
-        title: string;
-        position: string;
-      };
+      const { boardId, listId, newListId, title, position } =
+        Object.fromEntries(formData) as {
+          boardId: string;
+          listId: string;
+          newListId: string;
+          title: string;
+          position: string;
+        };
+
+      if (action === ACTIONS.MOVE_LIST && boardId !== params.boardId) {
+        lists = lists.filter((list) => list.id !== listId);
+        continue;
+      }
+
       const newLists =
         action === ACTIONS.COPY_LIST
           ? [
               ...lists,
               {
-                ...lists.find((list) => list.id === listId),
+                ...lists.find((list) => list.id === listId)!,
                 title,
                 position,
                 id: newListId,
@@ -205,11 +212,8 @@ export function useBoardDnd(
             destination.data.type === "card" &&
             destination.data.cardId === cardId
           ) {
-            console.log("no op gurad", { data: destination.data, cardId });
             return;
           }
-
-          console.log("operation", { data: destination.data, cardId });
 
           const siblings = (
             currentLists.find((l) => l.id === targetListId)?.cards ?? []

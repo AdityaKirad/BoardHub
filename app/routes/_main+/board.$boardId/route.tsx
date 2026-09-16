@@ -7,6 +7,7 @@ import type { Route } from "./+types/route";
 import { BoardTitle } from "./board-title";
 import { CreateList } from "./create-list";
 import { useBoardDnd, useOptimisticLists } from "./hooks";
+import { BoardContextProvider } from "./board-context";
 
 export { action } from "./board-action.server";
 
@@ -15,10 +16,16 @@ export const meta: Route.MetaFunction = ({ loaderData: { board } }) => [
 ];
 
 export async function loader({ params, request }: Route.LoaderArgs) {
-  const { username } = await requireUser(request);
+  const { id, username } = await requireUser(request);
+
+  const boards = await db.query.board.findMany({
+    columns: { id: true, title: true },
+    with: { lists: { columns: { id: true, position: true } } },
+    where: (board, { eq }) => eq(board.userId, id),
+  });
 
   const board = await db.query.board.findFirst({
-    columns: { id: false, userId: false },
+    columns: { userId: false },
     with: {
       lists: {
         columns: { boardId: false, createdAt: false, updatedAt: false },
@@ -38,10 +45,12 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     return redirect(`/${username}/boards`);
   }
 
-  return { board };
+  return { board, boards };
 }
 
-export default function Page({ loaderData: { board } }: Route.ComponentProps) {
+export default function Page({
+  loaderData: { board, boards },
+}: Route.ComponentProps) {
   const scrollAreaRef = useRef<React.ComponentRef<"ul">>(null);
   const lists = useOptimisticLists(board.lists);
 
@@ -55,16 +64,19 @@ export default function Page({ loaderData: { board } }: Route.ComponentProps) {
         <div className="bg-background/50 p-4 font-bold">
           <BoardTitle title={board.title} />
         </div>
+
         <ul
           className="flex w-full flex-1 items-start gap-4 overflow-x-auto overflow-y-hidden p-2"
           ref={scrollAreaRef}>
-          {lists.map((list, index) => (
-            <List
-              key={list.id}
-              list={list}
-              nextListPosition={lists[index + 1]?.position}
-            />
-          ))}
+          <BoardContextProvider value={{ boards }}>
+            {lists.map((list, index) => (
+              <List
+                key={list.id}
+                list={list}
+                nextListPosition={lists[index + 1]?.position}
+              />
+            ))}
+          </BoardContextProvider>
           <CreateList
             hasLists={lists.length > 0}
             lastListPosition={lists.at(-1)?.position}
