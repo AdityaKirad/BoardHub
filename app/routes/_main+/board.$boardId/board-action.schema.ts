@@ -4,20 +4,20 @@ import { ACTIONS } from "./action";
 export const schema = z.discriminatedUnion("action", [
   z.object({
     action: z.literal(ACTIONS.COPY_LIST),
-    listId: z.string(),
-    newListId: z.string(),
+    id: z.string(),
+    sourceListId: z.string(),
     title: z.string(),
     position: z.string(),
   }),
   z.object({
     action: z.literal(ACTIONS.CREATE_LIST),
-    listId: z.string(),
+    id: z.string(),
     title: z.string(),
     position: z.string(),
   }),
   z.object({
     action: z.literal(ACTIONS.CREATE_CARD),
-    cardId: z.string(),
+    id: z.string(),
     listId: z.string(),
     title: z.string(),
     position: z.string(),
@@ -31,13 +31,13 @@ export const schema = z.discriminatedUnion("action", [
     action: z.literal(ACTIONS.MOVE_LIST),
     boardId: z.string().optional(),
     listId: z.string(),
-    position: z.string().min(2),
+    position: z.string(),
   }),
   z.object({
     action: z.literal(ACTIONS.MOVE_CARD),
-    cardId: z.string(),
+    id: z.string(),
     listId: z.string(),
-    position: z.string().min(2),
+    position: z.string(),
   }),
   z.object({
     action: z.literal(ACTIONS.UPDATE_BOARD_TITLE),

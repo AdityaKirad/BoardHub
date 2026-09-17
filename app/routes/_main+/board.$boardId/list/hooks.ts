@@ -20,7 +20,7 @@ import {
   extractClosestEdge,
   type Edge,
 } from "@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge";
-import type { Cards } from "../hooks";
+import type { Cards } from "../types";
 
 export type ListState =
   | { type: "idle" }

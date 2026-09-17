@@ -31,7 +31,7 @@ export function CreateList({
     const formData = new FormData();
 
     formData.append("action", ACTIONS.CREATE_LIST);
-    formData.append("listId", createId());
+    formData.append("id", createId());
     formData.append("title", textAreaRef.current.value);
     formData.append("position", generateKeyBetween(lastListPosition, null));
 

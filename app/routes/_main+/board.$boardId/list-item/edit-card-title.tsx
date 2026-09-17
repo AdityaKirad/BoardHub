@@ -5,7 +5,7 @@ import { useRef, useState } from "react";
 import { createPortal, flushSync } from "react-dom";
 import { useFetcher, type FetcherWithComponents } from "react-router";
 import { ACTIONS } from "../action";
-import type { Card } from "../hooks";
+import type { Card } from "../types";
 
 type CardTitleProps = Pick<Card, "id" | "title">;
 

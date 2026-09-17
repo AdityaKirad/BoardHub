@@ -14,17 +14,18 @@ import { CopyListFormContent } from "./copy-list-form-content";
 import { MoveListFormContent } from "./move-list-form-content";
 import { MoveAllCardsInThisFormContent } from "./move-all-cards-in-this-form-content";
 import { cn } from "~/lib/utils";
+import { SortByFormContent } from "./sort-by-form-content";
 
 type DROPDOWN_ACTIONS = keyof Pick<
   typeof ACTIONS,
-  "COPY_LIST" | "MOVE_CARDS_IN_THIS_LIST" | "MOVE_LIST" | "SORT_BY"
+  "COPY_LIST" | "MOVE_CARDS_IN_THIS_LIST" | "MOVE_LIST" | "SORT_LIST"
 >;
 
 const actionTitle: Record<DROPDOWN_ACTIONS, string> = {
   COPY_LIST: "Copy list",
   MOVE_LIST: "Move list",
   MOVE_CARDS_IN_THIS_LIST: "Move all cards in this list",
-  SORT_BY: "Sort by",
+  SORT_LIST: "Sort by",
 };
 
 export function ListActionDropdown() {
@@ -33,9 +34,11 @@ export function ListActionDropdown() {
   const [action, actionSet] = useState<DROPDOWN_ACTIONS | null>(null);
   const fetcher = useFetcher();
 
-  function handleDropdownMenuItemSelect(evt: Event, action: DROPDOWN_ACTIONS) {
-    evt.preventDefault();
-    actionSet(action);
+  function handleDropdownMenuItemSelect(action: DROPDOWN_ACTIONS) {
+    return (evt: Event) => {
+      evt.preventDefault();
+      actionSet(action);
+    };
   }
 
   function handleSubmit(evt: React.SubmitEvent<HTMLFormElement>) {
@@ -97,10 +100,12 @@ export function ListActionDropdown() {
               <CopyListFormContent onEscape={() => actionSet(null)} />
             ) : action === "MOVE_LIST" ? (
               <MoveListFormContent />
-            ) : (
+            ) : action === "MOVE_CARDS_IN_THIS_LIST" ? (
               <MoveAllCardsInThisFormContent />
+            ) : (
+              <SortByFormContent />
             )}
-            {action !== "MOVE_CARDS_IN_THIS_LIST" && (
+            {!["MOVE_CARDS_IN_THIS_LIST", "SORT_LIST"].includes(action) && (
               <Button className="w-fit" type="submit">
                 {action === "COPY_LIST" ? "Create" : "Move"}
               </Button>
@@ -112,22 +117,22 @@ export function ListActionDropdown() {
               Add card
             </DropdownMenuItem>
             <DropdownMenuItem
-              onSelect={(evt) =>
-                handleDropdownMenuItemSelect(evt, "COPY_LIST")
-              }>
+              onSelect={handleDropdownMenuItemSelect("COPY_LIST")}>
               Copy list
             </DropdownMenuItem>
             <DropdownMenuItem
-              onSelect={(evt) =>
-                handleDropdownMenuItemSelect(evt, "MOVE_LIST")
-              }>
+              onSelect={handleDropdownMenuItemSelect("MOVE_LIST")}>
               Move list
             </DropdownMenuItem>
             <DropdownMenuItem
-              onSelect={(evt) =>
-                handleDropdownMenuItemSelect(evt, "MOVE_CARDS_IN_THIS_LIST")
-              }>
+              onSelect={handleDropdownMenuItemSelect(
+                "MOVE_CARDS_IN_THIS_LIST",
+              )}>
               Move all cards in this list
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={handleDropdownMenuItemSelect("SORT_LIST")}>
+              Sort by
             </DropdownMenuItem>
           </>
         )}

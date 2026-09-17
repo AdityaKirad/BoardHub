@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import { ACTIONS } from "../action";
 import { CircleCheckIcon, CircleIcon } from "lucide-react";
-import type { Card } from "../hooks";
+import type { Card } from "../types";
 
 export function ToggleCardCompletion({
   card,

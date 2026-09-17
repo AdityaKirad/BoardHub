@@ -31,8 +31,8 @@ export function CopyListFormContent({ onEscape }: { onEscape: () => void }) {
         name="position"
         value={generateKeyBetween(list.position, nextListPosition)}
       />
-      <input type="hidden" name="listId" value={list.id} />
-      <input type="hidden" name="newListId" value={createId()} />
+      <input type="hidden" name="sourceListId" value={list.id} />
+      <input type="hidden" name="id" value={createId()} />
       <input type="hidden" name="action" value={ACTIONS.COPY_LIST} />
     </>
   );

@@ -30,7 +30,7 @@ export function CreateCard({
     const formData = new FormData();
 
     formData.append("action", ACTIONS.CREATE_CARD);
-    formData.append("cardId", createId());
+    formData.append("id", createId());
     formData.append("listId", listId);
     formData.append("title", textAreaRef.current.value);
     formData.append("position", position);

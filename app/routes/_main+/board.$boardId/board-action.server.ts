@@ -26,7 +26,6 @@ export async function action({ params, request }: Route.ActionArgs) {
   const parsed = schema.safeParse(Object.fromEntries(formData));
 
   if (!parsed.success) {
-    console.log(parsed.error);
     return null;
   }
 

@@ -6,8 +6,9 @@ import { redirect } from "react-router";
 import type { Route } from "./+types/route";
 import { BoardTitle } from "./board-title";
 import { CreateList } from "./create-list";
-import { useBoardDnd, useOptimisticLists } from "./hooks";
 import { BoardContextProvider } from "./board-context";
+import { useOptimisticLists } from "./use-optimistic-list";
+import { useBoardDnd } from "./use-board-dnd";
 
 export { action } from "./board-action.server";
 

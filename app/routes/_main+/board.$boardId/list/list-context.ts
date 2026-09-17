@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import type { List } from "../hooks";
+import type { List } from "../types";
 
 export const ListContext = createContext<{
   list: Pick<List, "id" | "title" | "position">;

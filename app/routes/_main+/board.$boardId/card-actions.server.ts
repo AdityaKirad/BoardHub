@@ -3,23 +3,13 @@ import { card } from "~/.server/db/schema/workspace";
 import { eq, inArray, sql, type SQLChunk } from "drizzle-orm";
 import { generateNKeysBetween } from "fractional-indexing";
 
-export const handleCreateCard = ({
-  cardId: id,
-  listId,
-  position,
-  title,
-}: {
-  cardId: string;
+export const handleCreateCard = (cardData: {
+  id: string;
   listId: string;
   position: string;
   title: string;
 }) => {
-  return db.insert(card).values({
-    id,
-    title,
-    listId,
-    position,
-  });
+  return db.insert(card).values(cardData);
 };
 
 export const handleUpdateCardTitle = ({
@@ -45,14 +35,13 @@ export const handleToggleCardCompleted = ({
     .where(eq(card.id, cardId));
 
 export const handleMoveCard = ({
-  cardId,
-  listId,
-  position,
+  id,
+  ...moveData
 }: {
-  cardId: string;
+  id: string;
   listId: string;
   position: string;
-}) => db.update(card).set({ listId, position }).where(eq(card.id, cardId));
+}) => db.update(card).set(moveData).where(eq(card.id, id));
 
 export const handleMoveCardsInThisList = ({
   destinationListId,

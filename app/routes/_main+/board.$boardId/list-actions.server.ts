@@ -3,27 +3,19 @@ import { db } from "~/.server/db";
 import { card, list } from "~/.server/db/schema/workspace";
 
 export const handleCopyList = ({
-  boardId,
-  listId,
-  newListId,
-  title,
-  position,
+  sourceListId,
+  ...listData
 }: {
   boardId: string;
-  listId: string;
-  newListId: string;
+  id: string;
+  sourceListId: string;
   position: string;
   title: string;
 }) =>
   db.transaction(async (tx) => {
     const [newList] = await tx
       .insert(list)
-      .values({
-        boardId,
-        position,
-        title,
-        id: newListId,
-      })
+      .values(listData)
       .returning({ id: list.id });
 
     if (!newList) {
@@ -37,7 +29,7 @@ export const handleCopyList = ({
         completed: true,
         position: true,
       },
-      where: (card, { eq }) => eq(card.listId, listId),
+      where: (card, { eq }) => eq(card.listId, sourceListId),
     });
 
     if (cards.length) {
@@ -47,23 +39,12 @@ export const handleCopyList = ({
     }
   });
 
-export const handleCreateList = ({
-  listId: id,
-  boardId,
-  position,
-  title,
-}: {
+export const handleCreateList = (listData: {
+  id: string;
   boardId: string;
-  listId: string;
   position: string;
   title: string;
-}) =>
-  db.insert(list).values({
-    id,
-    title,
-    boardId,
-    position,
-  });
+}) => db.insert(list).values(listData);
 
 export const handleUpdateListTitle = ({
   title,

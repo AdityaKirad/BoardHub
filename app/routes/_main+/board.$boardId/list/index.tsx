@@ -8,8 +8,8 @@ import { CreateCardButton } from "./create-card-button";
 import { ListHeader } from "./list-header";
 import { useCreateCard, useListDnd, type ListState } from "./hooks";
 import { createPortal } from "react-dom";
-import type { List } from "../hooks";
 import { ListContextProvider } from "./list-context";
+import type { List } from "../types";
 
 function ListDisplay({
   cardContainerRef,
