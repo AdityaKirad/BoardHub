@@ -56,6 +56,7 @@ export function MoveListFormContent() {
         <Label>Position</Label>
         <Select
           name="position"
+          key={selectedBoard}
           defaultValue={generateKeyBetween(null, targetLists[0]?.position)}>
           <SelectTrigger className="mt-2 w-full rounded">
             <SelectValue />

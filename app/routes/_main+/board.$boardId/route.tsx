@@ -18,28 +18,42 @@ export const meta: Route.MetaFunction = ({ loaderData: { board } }) => [
 export async function loader({ params, request }: Route.LoaderArgs) {
   const { id, username } = await requireUser(request);
 
-  const boards = await db.query.board.findMany({
-    columns: { id: true, title: true },
-    with: { lists: { columns: { id: true, position: true } } },
-    where: (board, { eq }) => eq(board.userId, id),
-  });
-
-  const board = await db.query.board.findFirst({
-    columns: { userId: false },
-    with: {
-      lists: {
-        columns: { boardId: false, createdAt: false, updatedAt: false },
-        orderBy: (list, { asc }) => asc(list.position),
+  const [boards, board] = await Promise.all([
+    db.query.board
+      .findMany({
+        columns: { id: true, title: true },
         with: {
-          cards: {
-            columns: { description: false, createdAt: false, updatedAt: false },
-            orderBy: (card, { asc }) => asc(card.position),
+          lists: {
+            columns: { id: true, position: true },
+            orderBy: (list, { asc }) => asc(list.position),
           },
         },
-      },
-    },
-    where: (board, { eq }) => eq(board.id, params.boardId),
-  });
+        where: (board, { eq }) => eq(board.userId, id),
+      })
+      .execute(),
+    db.query.board
+      .findFirst({
+        columns: { userId: false },
+        with: {
+          lists: {
+            columns: { boardId: false, createdAt: false, updatedAt: false },
+            orderBy: (list, { asc }) => asc(list.position),
+            with: {
+              cards: {
+                columns: {
+                  description: false,
+                  createdAt: false,
+                  updatedAt: false,
+                },
+                orderBy: (card, { asc }) => asc(card.position),
+              },
+            },
+          },
+        },
+        where: (board, { eq }) => eq(board.id, params.boardId),
+      })
+      .execute(),
+  ]);
 
   if (!board) {
     return redirect(`/${username}/boards`);
@@ -68,7 +82,7 @@ export default function Page({
         <ul
           className="flex w-full flex-1 items-start gap-4 overflow-x-auto overflow-y-hidden p-2"
           ref={scrollAreaRef}>
-          <BoardContextProvider value={{ boards }}>
+          <BoardContextProvider value={{ boards, lists: board.lists }}>
             {lists.map((list, index) => (
               <List
                 key={list.id}

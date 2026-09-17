@@ -3,7 +3,7 @@ export const ACTIONS = {
   CREATE_LIST: "create-list",
   CREATE_CARD: "create-card",
   MOVE_CARD: "move-card",
-  MOVE_CARDS_IN_LIST: "move-cards-in-list",
+  MOVE_CARDS_IN_THIS_LIST: "move-cards-in-this-list",
   MOVE_LIST: "move-list",
   TOGGLE_CARD_COMPLETION: "toggle-card-completion",
   SORT_BY: "sort-by",

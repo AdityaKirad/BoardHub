@@ -12,16 +12,18 @@ import type { ACTIONS } from "../../action";
 import { useListContext } from "../list-context";
 import { CopyListFormContent } from "./copy-list-form-content";
 import { MoveListFormContent } from "./move-list-form-content";
+import { MoveAllCardsInThisFormContent } from "./move-all-cards-in-this-form-content";
+import { cn } from "~/lib/utils";
 
 type DROPDOWN_ACTIONS = keyof Pick<
   typeof ACTIONS,
-  "COPY_LIST" | "MOVE_CARDS_IN_LIST" | "MOVE_LIST" | "SORT_BY"
+  "COPY_LIST" | "MOVE_CARDS_IN_THIS_LIST" | "MOVE_LIST" | "SORT_BY"
 >;
 
 const actionTitle: Record<DROPDOWN_ACTIONS, string> = {
   COPY_LIST: "Copy list",
   MOVE_LIST: "Move list",
-  MOVE_CARDS_IN_LIST: "Move all cards in this list",
+  MOVE_CARDS_IN_THIS_LIST: "Move all cards in this list",
   SORT_BY: "Sort by",
 };
 
@@ -39,7 +41,9 @@ export function ListActionDropdown() {
   function handleSubmit(evt: React.SubmitEvent<HTMLFormElement>) {
     evt.preventDefault();
 
-    void fetcher.submit(evt.currentTarget, {
+    const formData = new FormData(evt.currentTarget, evt.nativeEvent.submitter);
+
+    void fetcher.submit(formData, {
       method: "POST",
       flushSync: true,
     });
@@ -85,16 +89,22 @@ export function ListActionDropdown() {
         {action ? (
           <fetcher.Form
             method="POST"
-            className="flex flex-col gap-2 px-2"
+            className={cn("flex flex-col gap-2", {
+              "px-2": action !== "MOVE_CARDS_IN_THIS_LIST",
+            })}
             onSubmit={handleSubmit}>
             {action === "COPY_LIST" ? (
               <CopyListFormContent onEscape={() => actionSet(null)} />
-            ) : (
+            ) : action === "MOVE_LIST" ? (
               <MoveListFormContent />
+            ) : (
+              <MoveAllCardsInThisFormContent />
             )}
-            <Button className="w-fit" type="submit">
-              {action === "COPY_LIST" ? "Create" : "Move"}
-            </Button>
+            {action !== "MOVE_CARDS_IN_THIS_LIST" && (
+              <Button className="w-fit" type="submit">
+                {action === "COPY_LIST" ? "Create" : "Move"}
+              </Button>
+            )}
           </fetcher.Form>
         ) : (
           <>
@@ -112,6 +122,12 @@ export function ListActionDropdown() {
                 handleDropdownMenuItemSelect(evt, "MOVE_LIST")
               }>
               Move list
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={(evt) =>
+                handleDropdownMenuItemSelect(evt, "MOVE_CARDS_IN_THIS_LIST")
+              }>
+              Move all cards in this list
             </DropdownMenuItem>
           </>
         )}

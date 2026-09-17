@@ -47,7 +47,7 @@ export const handleCopyList = ({
     }
   });
 
-export const handleCreateList = async ({
+export const handleCreateList = ({
   listId: id,
   boardId,
   position,
@@ -73,7 +73,7 @@ export const handleUpdateListTitle = ({
   listId: string;
 }) => db.update(list).set({ title }).where(eq(list.id, listId));
 
-export const handleMoveList = async ({
+export const handleMoveList = ({
   boardId,
   listId,
   position,

@@ -30,6 +30,7 @@ export function useOptimisticLists(lists: Lists) {
     if (
       action === ACTIONS.COPY_LIST ||
       action === ACTIONS.CREATE_LIST ||
+      action === ACTIONS.MOVE_CARDS_IN_THIS_LIST ||
       action === ACTIONS.MOVE_LIST
     ) {
       const { boardId, listId, newListId, title, position } =
@@ -76,7 +77,11 @@ export function useOptimisticLists(lists: Lists) {
       lists = newLists.sort((a, b) => sortPosition(a.position, b.position));
     }
 
-    if (action === ACTIONS.CREATE_CARD || action === ACTIONS.MOVE_CARD) {
+    if (
+      action === ACTIONS.CREATE_CARD ||
+      action === ACTIONS.MOVE_CARD ||
+      action === ACTIONS.MOVE_CARDS_IN_THIS_LIST
+    ) {
       const { cardId, listId, title, position } = Object.fromEntries(
         formData,
       ) as {
@@ -85,6 +90,40 @@ export function useOptimisticLists(lists: Lists) {
         title: string;
         position: string;
       };
+
+      if (action === ACTIONS.MOVE_CARDS_IN_THIS_LIST) {
+        const { destinationListId, sourceListId } = Object.fromEntries(
+          formData,
+        ) as {
+          destinationListId: string;
+          sourceListId: string;
+        };
+
+        lists = lists.map((list) => {
+          if (list.id === sourceListId) {
+            return {
+              ...list,
+              cards: [],
+            };
+          }
+          if (list.id === destinationListId) {
+            const sourceList = lists.find((list) => list.id === sourceListId);
+            if (!sourceList) {
+              return list;
+            }
+            const movedCards = sourceList.cards.map((card) => ({
+              ...card,
+              listId: destinationListId,
+            }));
+            return {
+              ...list,
+              cards: [...list.cards, ...movedCards],
+            };
+          }
+          return list;
+        });
+        continue;
+      }
 
       if (action === ACTIONS.CREATE_CARD) {
         lists = lists.map((list) =>

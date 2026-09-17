@@ -10,6 +10,7 @@ import {
 import {
   handleCreateCard,
   handleMoveCard,
+  handleMoveCardsInThisList,
   handleToggleCardCompleted,
   handleUpdateCardTitle,
 } from "./card-actions.server";
@@ -25,6 +26,7 @@ export async function action({ params, request }: Route.ActionArgs) {
   const parsed = schema.safeParse(Object.fromEntries(formData));
 
   if (!parsed.success) {
+    console.log(parsed.error);
     return null;
   }
 
@@ -46,6 +48,9 @@ export async function action({ params, request }: Route.ActionArgs) {
       break;
     case "move-card":
       await handleMoveCard(parsed.data);
+      break;
+    case "move-cards-in-this-list":
+      await handleMoveCardsInThisList(parsed.data);
       break;
     case "update-board-title":
       await updateBoardTitle({ ...parsed.data, boardId: params.boardId });

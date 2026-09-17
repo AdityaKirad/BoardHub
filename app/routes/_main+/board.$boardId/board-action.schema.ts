@@ -23,6 +23,11 @@ export const schema = z.discriminatedUnion("action", [
     position: z.string(),
   }),
   z.object({
+    action: z.literal(ACTIONS.MOVE_CARDS_IN_THIS_LIST),
+    destinationListId: z.string(),
+    sourceListId: z.string(),
+  }),
+  z.object({
     action: z.literal(ACTIONS.MOVE_LIST),
     boardId: z.string().optional(),
     listId: z.string(),

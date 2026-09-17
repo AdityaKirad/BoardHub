@@ -3,6 +3,7 @@ import type { Route } from "./+types/route";
 
 const BoardContext = createContext<{
   boards: Route.ComponentProps["loaderData"]["boards"];
+  lists: Route.ComponentProps["loaderData"]["board"]["lists"];
 } | null>(null);
 
 export function useBoardContext() {
