@@ -11,6 +11,7 @@ import {
   handleCreateCard,
   handleMoveCard,
   handleMoveCardsInThisList,
+  handleSortList,
   handleToggleCardCompleted,
   handleUpdateCardTitle,
 } from "./card-actions.server";
@@ -50,6 +51,9 @@ export async function action({ params, request }: Route.ActionArgs) {
       break;
     case "move-cards-in-this-list":
       await handleMoveCardsInThisList(parsed.data);
+      break;
+    case "sort-list":
+      await handleSortList(parsed.data);
       break;
     case "update-board-title":
       await updateBoardTitle({ ...parsed.data, boardId: params.boardId });

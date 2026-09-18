@@ -96,15 +96,14 @@ export function ListActionDropdown() {
               "px-2": action !== "MOVE_CARDS_IN_THIS_LIST",
             })}
             onSubmit={handleSubmit}>
-            {action === "COPY_LIST" ? (
+            {action === "COPY_LIST" && (
               <CopyListFormContent onEscape={() => actionSet(null)} />
-            ) : action === "MOVE_LIST" ? (
-              <MoveListFormContent />
-            ) : action === "MOVE_CARDS_IN_THIS_LIST" ? (
-              <MoveAllCardsInThisFormContent />
-            ) : (
-              <SortByFormContent />
             )}
+            {action === "MOVE_LIST" && <MoveListFormContent />}
+            {action === "MOVE_CARDS_IN_THIS_LIST" && (
+              <MoveAllCardsInThisFormContent />
+            )}
+            {action === "SORT_LIST" && <SortByFormContent />}
             {!["MOVE_CARDS_IN_THIS_LIST", "SORT_LIST"].includes(action) && (
               <Button className="w-fit" type="submit">
                 {action === "COPY_LIST" ? "Create" : "Move"}

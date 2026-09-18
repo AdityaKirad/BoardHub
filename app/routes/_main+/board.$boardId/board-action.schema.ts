@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ACTIONS } from "./action";
+import { SORT_METHODS } from "./card-actions.server";
 
 export const schema = z.discriminatedUnion("action", [
   z.object({
@@ -38,6 +39,11 @@ export const schema = z.discriminatedUnion("action", [
     id: z.string(),
     listId: z.string(),
     position: z.string(),
+  }),
+  z.object({
+    action: z.literal(ACTIONS.SORT_LIST),
+    listId: z.string(),
+    sortBy: z.enum(SORT_METHODS),
   }),
   z.object({
     action: z.literal(ACTIONS.UPDATE_BOARD_TITLE),
