@@ -7,6 +7,7 @@ export const ACTIONS = {
   MOVE_LIST: "move-list",
   SORT_LIST: "sort-list",
   TOGGLE_CARD_COMPLETION: "toggle-card-completion",
+  TOGGLE_PIN_LIST: "toggle-pin-list",
   UPDATE_BOARD_TITLE: "update-board-title",
   UPDATE_LIST_TITLE: "update-list-title",
   UPDATE_CARD_TITLE: "update-card-title",

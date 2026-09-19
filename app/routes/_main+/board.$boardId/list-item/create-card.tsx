@@ -6,14 +6,13 @@ import { XIcon } from "lucide-react";
 import { useRef } from "react";
 import { Form, useSubmit } from "react-router";
 import { ACTIONS } from "../action";
+import { useListContext } from "../list/list-context";
 
 export function CreateCard({
-  listId,
   position,
   onNewCard,
   onCancel,
 }: {
-  listId: string;
   position: string;
   onNewCard: () => void;
   onCancel: () => void;
@@ -21,6 +20,9 @@ export function CreateCard({
   const submit = useSubmit();
   const formRef = useRef<React.ComponentRef<typeof Form>>(null);
   const textAreaRef = useRef<React.ComponentRef<typeof Textarea>>(null);
+  const {
+    list: { id: listId },
+  } = useListContext();
 
   function createCard() {
     if (!textAreaRef.current?.value) {

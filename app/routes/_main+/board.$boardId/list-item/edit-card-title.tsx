@@ -60,7 +60,7 @@ export function useEditCardTitle(
 
     formData.append("action", ACTIONS.UPDATE_CARD_TITLE);
     formData.append("title", currentValue);
-    formData.append("cardId", card.id);
+    formData.append("id", card.id);
 
     void fetcher.submit(formData, {
       method: "POST",

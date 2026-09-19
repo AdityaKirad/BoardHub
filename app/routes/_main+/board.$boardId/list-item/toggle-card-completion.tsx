@@ -40,7 +40,7 @@ export function ToggleCardCompletion({
       const formData = new FormData();
 
       formData.append("action", ACTIONS.TOGGLE_CARD_COMPLETION);
-      formData.append("cardId", card.id);
+      formData.append("id", card.id);
       formData.append("completed", String(next));
 
       void fetcher.submit(formData, { method: "POST" });

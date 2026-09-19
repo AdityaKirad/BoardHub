@@ -1,0 +1,1 @@
+ALTER TABLE `list` ADD `pinned` integer DEFAULT false NOT NULL;

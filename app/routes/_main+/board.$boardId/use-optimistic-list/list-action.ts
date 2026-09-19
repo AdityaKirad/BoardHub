@@ -51,3 +51,8 @@ export const moveList = (
     : lists.map((list) =>
         list.id === sourceListId ? { ...list, position } : list,
       );
+
+export const togglePinList = (lists: Lists, { id }: { id: string }) =>
+  lists.map((list) =>
+    list.id === id ? { ...list, pinned: !list.pinned } : list,
+  );

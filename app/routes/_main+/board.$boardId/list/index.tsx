@@ -23,7 +23,7 @@ function ListDisplay({
   state: ListState;
   cardContainerRef?: React.RefObject<React.ComponentRef<"ul"> | null>;
   headerRef?: React.RefObject<React.ComponentRef<"div"> | null>;
-  listRef?: React.RefObject<React.ComponentRef<"li"> | null>;
+  listRef?: React.RefObject<React.ComponentRef<"div"> | null>;
   nextListPosition?: string;
 }) {
   const {
@@ -41,16 +41,16 @@ function ListDisplay({
       {state.type === "is-column-over" && state.closestEdge === "left" && (
         <ListPlaceholder rect={state.rect} />
       )}
-      <li
+      <div
         className={cn(
-          "bg-card relative flex max-h-[calc(100%-3rem)] min-w-0 shrink-0 basis-64 flex-col overflow-hidden rounded-lg",
+          "bg-card relative flex max-h-[calc(100%-3rem)] w-64 flex-col overflow-hidden rounded-lg",
           {
             "outline-2 outline-offset-2 outline-white":
               state.type === "is-card-over",
           },
         )}
         ref={listRef}>
-        <ListHeader ref={headerRef} totalCards={cards.length} />
+        <ListHeader ref={headerRef} />
         <ul
           className={cn("relative min-h-0 flex-1 overflow-y-auto", {
             "p-2": cards.length || createIndex !== null,
@@ -59,7 +59,6 @@ function ListDisplay({
           ref={cardContainerRef}>
           {createIndex === 0 && createPosition && (
             <CreateCard
-              listId={list.id}
               position={createPosition}
               onNewCard={handleNewCard}
               onCancel={closeCreateCard}
@@ -75,7 +74,6 @@ function ListDisplay({
               <ListItem {...card} />
               {createIndex === index + 1 && createPosition ? (
                 <CreateCard
-                  listId={list.id}
                   position={createPosition}
                   onNewCard={handleNewCard}
                   onCancel={closeCreateCard}
@@ -100,7 +98,7 @@ function ListDisplay({
             </Button>
           </div>
         )}
-      </li>
+      </div>
       {state.type === "is-column-over" && state.closestEdge === "right" && (
         <ListPlaceholder rect={state.rect} />
       )}
@@ -115,7 +113,10 @@ export function List({
   list: List;
   nextListPosition: string | undefined;
 }) {
-  const { cardContainerRef, listRef, headerRef, state } = useListDnd(list.id);
+  const { cardContainerRef, listRef, headerRef, state } = useListDnd({
+    listId: list.id,
+    pinned: list.pinned,
+  });
   return (
     <>
       <ListDisplay

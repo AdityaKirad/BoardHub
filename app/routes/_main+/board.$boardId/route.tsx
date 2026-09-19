@@ -81,26 +81,29 @@ export default function Page({
         </div>
 
         <ul
-          className="flex w-full flex-1 items-start gap-4 overflow-x-auto overflow-y-hidden p-2"
+          className="flex w-full flex-1 items-start overflow-x-auto overflow-y-hidden p-2"
           ref={scrollAreaRef}>
           <BoardContextProvider value={{ boards, lists: board.lists }}>
             {lists.map((list, index) => (
-              <List
-                key={list.id}
-                list={list}
-                nextListPosition={lists[index + 1]?.position}
-              />
+              <li className="shrink-0 px-1" key={list.id}>
+                <List
+                  list={list}
+                  nextListPosition={lists[index + 1]?.position}
+                />
+              </li>
             ))}
           </BoardContextProvider>
-          <CreateList
-            hasLists={lists.length > 0}
-            lastListPosition={lists.at(-1)?.position}
-            onNewList={() =>
-              scrollAreaRef.current &&
-              (scrollAreaRef.current.scrollLeft =
-                scrollAreaRef.current.scrollWidth)
-            }
-          />
+          <li className="shrink-0 px-1">
+            <CreateList
+              hasLists={lists.length > 0}
+              lastListPosition={lists.at(-1)?.position}
+              onNewList={() =>
+                scrollAreaRef.current &&
+                (scrollAreaRef.current.scrollLeft =
+                  scrollAreaRef.current.scrollWidth)
+              }
+            />
+          </li>
         </ul>
       </div>
     </div>

@@ -72,10 +72,16 @@ export function useCreateCard(
   };
 }
 
-export function useListDnd(listId: string) {
+export function useListDnd({
+  listId,
+  pinned,
+}: {
+  listId: string;
+  pinned: boolean;
+}) {
   const cardContainerRef = useRef<React.ComponentRef<"ul">>(null);
   const headerRef = useRef<React.ComponentRef<"div">>(null);
-  const listRef = useRef<React.ComponentRef<"li">>(null);
+  const listRef = useRef<React.ComponentRef<"div">>(null);
 
   const [state, stateSet] = useState<ListState>({ type: "idle" });
 
@@ -135,6 +141,7 @@ export function useListDnd(listId: string) {
     return combine(
       draggable({
         element: header,
+        canDrag: () => !pinned,
         getInitialData: () => ({
           listId,
           rect,
@@ -214,7 +221,7 @@ export function useListDnd(listId: string) {
         }),
       }),
     );
-  }, [listId]);
+  }, [listId, pinned]);
 
   return {
     cardContainerRef,

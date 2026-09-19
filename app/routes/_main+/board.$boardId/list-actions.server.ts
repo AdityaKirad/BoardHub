@@ -1,17 +1,18 @@
-import { eq } from "drizzle-orm";
+import { eq, not } from "drizzle-orm";
 import { db } from "~/.server/db";
 import { card, list } from "~/.server/db/schema/workspace";
+import type {
+  CopyList,
+  CreateList,
+  MoveList,
+  TogglePinList,
+  UpdateListTitle,
+} from "./schema/list";
 
 export const handleCopyList = ({
   sourceListId,
   ...listData
-}: {
-  boardId: string;
-  id: string;
-  sourceListId: string;
-  position: string;
-  title: string;
-}) =>
+}: CopyList & { boardId: string }) =>
   db.transaction(async (tx) => {
     const [newList] = await tx
       .insert(list)
@@ -39,27 +40,17 @@ export const handleCopyList = ({
     }
   });
 
-export const handleCreateList = (listData: {
-  id: string;
-  boardId: string;
-  position: string;
-  title: string;
-}) => db.insert(list).values(listData);
+export const handleCreateList = (listData: CreateList & { boardId: string }) =>
+  db.insert(list).values(listData);
 
-export const handleUpdateListTitle = ({
-  title,
-  listId,
-}: {
-  title: string;
-  listId: string;
-}) => db.update(list).set({ title }).where(eq(list.id, listId));
+export const handleUpdateListTitle = ({ id, title }: UpdateListTitle) =>
+  db.update(list).set({ title }).where(eq(list.id, id));
 
-export const handleMoveList = ({
-  boardId,
-  listId,
-  position,
-}: {
-  boardId?: string;
-  listId: string;
-  position: string;
-}) => db.update(list).set({ boardId, position }).where(eq(list.id, listId));
+export const handleMoveList = ({ boardId, listId, position }: MoveList) =>
+  db.update(list).set({ boardId, position }).where(eq(list.id, listId));
+
+export const handleTogglePinList = ({ id }: TogglePinList) =>
+  db
+    .update(list)
+    .set({ pinned: not(list.pinned) })
+    .where(eq(list.id, id));

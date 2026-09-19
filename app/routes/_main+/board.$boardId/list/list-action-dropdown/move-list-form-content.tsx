@@ -84,7 +84,7 @@ export function MoveListFormContent() {
       </div>
 
       <input type="hidden" name="action" value={ACTIONS.MOVE_LIST} />
-      <input type="hidden" name="sourceListId" value={list.id} />
+      <input type="hidden" name="listId" value={list.id} />
     </>
   );
 }

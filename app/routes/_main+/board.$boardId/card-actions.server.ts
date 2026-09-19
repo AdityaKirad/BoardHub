@@ -2,58 +2,25 @@ import { db } from "~/.server/db";
 import { card } from "~/.server/db/schema/workspace";
 import { eq, inArray, sql, type SQLChunk } from "drizzle-orm";
 import { generateNKeysBetween } from "fractional-indexing";
+import type {
+  CreateCard,
+  MoveCard,
+  MoveCardInThisList,
+  SortList,
+  ToggleCardCompletion,
+  UpdateCardTitle,
+} from "./schema/card";
 
-export const SORT_METHODS = ["created-asc", "created-desc", "title"] as const;
+export const handleCreateCard = (cardData: CreateCard) =>
+  db.insert(card).values(cardData);
 
-type SortMethod = (typeof SORT_METHODS)[number];
-
-export const handleCreateCard = (cardData: {
-  id: string;
-  listId: string;
-  position: string;
-  title: string;
-}) => {
-  return db.insert(card).values(cardData);
-};
-
-export const handleUpdateCardTitle = ({
-  cardId,
-  title,
-}: {
-  cardId: string;
-  title: string;
-}) => db.update(card).set({ title }).where(eq(card.id, cardId));
-
-export const handleToggleCardCompleted = ({
-  cardId,
-  completed,
-}: {
-  cardId: string;
-  completed: boolean;
-}) =>
-  db
-    .update(card)
-    .set({
-      completed,
-    })
-    .where(eq(card.id, cardId));
-
-export const handleMoveCard = ({
-  id,
-  ...moveData
-}: {
-  id: string;
-  listId: string;
-  position: string;
-}) => db.update(card).set(moveData).where(eq(card.id, id));
+export const handleMoveCard = ({ id, ...moveData }: MoveCard) =>
+  db.update(card).set(moveData).where(eq(card.id, id));
 
 export const handleMoveCardsInThisList = ({
   destinationListId,
   sourceListId,
-}: {
-  destinationListId: string;
-  sourceListId: string;
-}) =>
+}: MoveCardInThisList) =>
   db.transaction(async (tx) => {
     const cards = await tx.query.card.findMany({
       where: (card, { eq }) => eq(card.listId, sourceListId),
@@ -99,13 +66,7 @@ export const handleMoveCardsInThisList = ({
       );
   });
 
-export const handleSortList = ({
-  listId,
-  sortBy,
-}: {
-  listId: string;
-  sortBy: SortMethod;
-}) =>
+export const handleSortList = ({ listId, sortBy }: SortList) =>
   db.transaction(async (tx) => {
     const cards = await tx.query.card.findMany({
       where: (card, { eq }) => eq(card.listId, listId),
@@ -146,3 +107,17 @@ export const handleSortList = ({
         ),
       );
   });
+
+export const handleToggleCardCompleted = ({
+  id,
+  completed,
+}: ToggleCardCompletion) =>
+  db
+    .update(card)
+    .set({
+      completed,
+    })
+    .where(eq(card.id, id));
+
+export const handleUpdateCardTitle = ({ id, title }: UpdateCardTitle) =>
+  db.update(card).set({ title }).where(eq(card.id, id));

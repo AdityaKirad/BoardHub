@@ -1,10 +1,11 @@
 import { requireUser } from "~/.server/session";
 import type { Route } from "./+types/route";
-import { schema } from "./board-action.schema";
+import { schema } from "./schema";
 import {
   handleCopyList,
   handleCreateList,
   handleMoveList,
+  handleTogglePinList,
   handleUpdateListTitle,
 } from "./list-actions.server";
 import {
@@ -66,6 +67,9 @@ export async function action({ params, request }: Route.ActionArgs) {
       break;
     case "toggle-card-completion":
       await handleToggleCardCompleted(parsed.data);
+      break;
+    case "toggle-pin-list":
+      await handleTogglePinList(parsed.data);
       break;
     default:
       break;

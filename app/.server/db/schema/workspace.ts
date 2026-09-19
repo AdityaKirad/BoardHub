@@ -24,10 +24,11 @@ export const list = sqliteTable("list", {
   boardId: text()
     .notNull()
     .references(() => board.id, { onDelete: "cascade" }),
-  title: text().notNull(),
   color: text(),
-  archived: integer({ mode: "boolean" }).notNull().default(false),
+  title: text().notNull(),
   position: text().notNull(),
+  archived: integer({ mode: "boolean" }).notNull().default(false),
+  pinned: integer({ mode: "boolean" }).notNull().default(false),
   createdAt: timestamps.createdAt,
   updatedAt: timestamps.updatedAt,
 });

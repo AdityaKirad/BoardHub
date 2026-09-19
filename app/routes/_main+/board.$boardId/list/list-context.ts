@@ -2,7 +2,7 @@ import { createContext, useContext } from "react";
 import type { List } from "../types";
 
 export const ListContext = createContext<{
-  list: Pick<List, "id" | "title" | "position">;
+  list: List;
   nextListPosition: string | undefined;
   openCreateCard: (index: number) => void;
 } | null>(null);

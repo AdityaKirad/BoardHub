@@ -47,7 +47,7 @@ export function CreateList({
 
   return create ? (
     <Form
-      className="bg-card min-w-0 shrink-0 basis-64 space-y-2 rounded-lg p-2"
+      className="bg-card w-64 space-y-2 rounded-lg p-2"
       ref={formRef}
       onSubmit={(evt) => {
         evt.preventDefault();
@@ -76,7 +76,7 @@ export function CreateList({
     </Form>
   ) : (
     <Button
-      className="min-w-0 shrink-0 basis-64 rounded-lg bg-white/60 hover:bg-white/70 focus-visible:bg-white/70 focus-visible:outline-white/70"
+      className="w-64 rounded-lg bg-white/60 hover:bg-white/70 focus-visible:bg-white/70 focus-visible:outline-white/70"
       size="lg"
       onClick={() => {
         flushSync(() => createSet(true));

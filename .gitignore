@@ -8,5 +8,3 @@ entry.server.tsx
 entry.client.tsx
 mockServiceWorker.js
 mocks
-db.sqlite-shm
-db.sqlite-wal

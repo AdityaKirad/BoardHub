@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import type { ACTIONS } from "../../action";
+import { ACTIONS } from "../../action";
 import { useListContext } from "../list-context";
 import { CopyListFormContent } from "./copy-list-form-content";
 import { MoveListFormContent } from "./move-list-form-content";
@@ -29,7 +29,7 @@ const actionTitle: Record<DROPDOWN_ACTIONS, string> = {
 };
 
 export function ListActionDropdown() {
-  const { openCreateCard } = useListContext();
+  const { list, openCreateCard } = useListContext();
   const [open, openSet] = useState(false);
   const [action, actionSet] = useState<DROPDOWN_ACTIONS | null>(null);
   const fetcher = useFetcher();
@@ -61,7 +61,7 @@ export function ListActionDropdown() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-60 px-0 py-3 *:[div[data-slot=dropdown-menu-item]]:rounded-none *:[div[data-slot=dropdown-menu-item]]:py-2"
+        className="w-60 px-0 py-3 *:data-[slot=dropdown-menu-item]:rounded-none *:data-[slot=dropdown-menu-item]:py-2"
         onAnimationEnd={(evt) =>
           !open && action && evt.target === evt.currentTarget && actionSet(null)
         }
@@ -132,6 +132,20 @@ export function ListActionDropdown() {
             <DropdownMenuItem
               onSelect={handleDropdownMenuItemSelect("SORT_LIST")}>
               Sort by
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <fetcher.Form method="POST">
+                <input
+                  type="hidden"
+                  name="action"
+                  value={ACTIONS.TOGGLE_PIN_LIST}
+                />
+                <input type="hidden" name="id" value={list.id} />
+
+                <button className="w-full text-left" type="submit">
+                  {list.pinned ? "Unpin list" : "Pin list"}
+                </button>
+              </fetcher.Form>
             </DropdownMenuItem>
           </>
         )}
