@@ -3,6 +3,7 @@ import { card } from "~/.server/db/schema/workspace";
 import { eq, inArray, sql, type SQLChunk } from "drizzle-orm";
 import { generateNKeysBetween } from "fractional-indexing";
 import type {
+  ArchiveAllCardInList,
   CreateCard,
   MoveCard,
   MoveCardInThisList,
@@ -10,6 +11,9 @@ import type {
   ToggleCardCompletion,
   UpdateCardTitle,
 } from "./schema/card";
+
+export const handleArchiveAllCardInList = ({ listId }: ArchiveAllCardInList) =>
+  db.update(card).set({ archived: true }).where(eq(card.listId, listId));
 
 export const handleCreateCard = (cardData: CreateCard) =>
   db.insert(card).values(cardData);

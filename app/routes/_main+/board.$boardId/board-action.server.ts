@@ -2,6 +2,7 @@ import { requireUser } from "~/.server/session";
 import type { Route } from "./+types/route";
 import { schema } from "./schema";
 import {
+  handleArchiveList,
   handleCopyList,
   handleCreateList,
   handleMoveList,
@@ -9,6 +10,7 @@ import {
   handleUpdateListTitle,
 } from "./list-actions.server";
 import {
+  handleArchiveAllCardInList,
   handleCreateCard,
   handleMoveCard,
   handleMoveCardsInThisList,
@@ -32,6 +34,12 @@ export async function action({ params, request }: Route.ActionArgs) {
   }
 
   switch (parsed.data.action) {
+    case "archive-all-card-in-list":
+      await handleArchiveAllCardInList(parsed.data);
+      break;
+    case "archive-list":
+      await handleArchiveList(parsed.data);
+      break;
     case "copy-list":
       await handleCopyList({
         ...parsed.data,

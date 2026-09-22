@@ -1,5 +1,11 @@
 import { z } from "zod";
 import { ACTIONS } from "../action";
+import type { WithoutAction } from ".";
+
+const archiveList = z.object({
+  action: z.literal(ACTIONS.ARCHIVE_LIST),
+  id: z.string(),
+});
 
 const copyList = z.object({
   action: z.literal(ACTIONS.COPY_LIST),
@@ -19,7 +25,7 @@ const createList = z.object({
 const moveList = z.object({
   action: z.literal(ACTIONS.MOVE_LIST),
   boardId: z.string().optional(),
-  listId: z.string(),
+  id: z.string(),
   position: z.string(),
 });
 
@@ -35,6 +41,7 @@ const updateListTitle = z.object({
 });
 
 export const listSchemas = [
+  archiveList,
   copyList,
   createList,
   moveList,
@@ -42,8 +49,9 @@ export const listSchemas = [
   updateListTitle,
 ] as const;
 
-export type CopyList = Omit<z.infer<typeof copyList>, "action">;
-export type CreateList = Omit<z.infer<typeof createList>, "action">;
-export type MoveList = Omit<z.infer<typeof moveList>, "action">;
-export type TogglePinList = Omit<z.infer<typeof togglePinList>, "action">;
-export type UpdateListTitle = Omit<z.infer<typeof updateListTitle>, "action">;
+export type ArchiveList = WithoutAction<z.infer<typeof archiveList>>;
+export type CopyList = WithoutAction<z.infer<typeof copyList>>;
+export type CreateList = WithoutAction<z.infer<typeof createList>>;
+export type MoveList = WithoutAction<z.infer<typeof moveList>>;
+export type TogglePinList = WithoutAction<z.infer<typeof togglePinList>>;
+export type UpdateListTitle = WithoutAction<z.infer<typeof updateListTitle>>;

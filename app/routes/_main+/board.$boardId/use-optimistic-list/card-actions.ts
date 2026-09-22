@@ -1,25 +1,38 @@
-import { sortPosition } from ".";
+import type {
+  ArchiveAllCardInList,
+  CreateCard,
+  MoveCard,
+  MoveCardInThisList,
+} from "../schema/card";
 import type { Lists } from "../types";
 
-export const createCard = (
+export const archiveAllCardInList = (
   lists: Lists,
-  cardData: { id: string; listId: string; title: string; position: string },
+  { listId }: ArchiveAllCardInList,
 ) =>
   lists.map((list) =>
-    list.id === cardData.listId
+    list.id === listId
       ? {
           ...list,
-          cards: [...list.cards, { ...cardData, completed: false }].sort(
-            (a, b) => sortPosition(a.position, b.position),
-          ),
+          cards: list.cards.map((card) => ({ ...card, archived: true })),
         }
       : list,
   );
 
-export function moveCard(
-  lists: Lists,
-  { id, listId, position }: { id: string; listId: string; position: string },
-) {
+export const createCard = (lists: Lists, cardData: CreateCard) =>
+  lists.map((list) =>
+    list.id === cardData.listId
+      ? {
+          ...list,
+          cards: [
+            ...list.cards,
+            { ...cardData, archived: false, completed: false },
+          ],
+        }
+      : list,
+  );
+
+export function moveCard(lists: Lists, { id, listId, position }: MoveCard) {
   const card = lists
     .flatMap((list) => list.cards)
     .find((card) => card.id === id);
@@ -33,25 +46,22 @@ export function moveCard(
       return list;
     }
     const listWithoutCard = list.cards.filter((card) => card.id !== id);
-    const newCards =
-      list.id === listId
-        ? listWithoutCard.concat([{ ...card, listId, position }])
-        : listWithoutCard;
+
     return {
       ...list,
-      cards: newCards.sort((a, b) => a.position.localeCompare(b.position)),
+      cards:
+        list.id === listId
+          ? listWithoutCard.concat([{ ...card, listId, position }])
+          : listWithoutCard,
     };
   });
 }
 
-export function moveCardInThisList(
+export const moveCardInThisList = (
   lists: Lists,
-  {
-    destinationListId,
-    sourceListId,
-  }: { destinationListId: string; sourceListId: string },
-) {
-  return lists.map((list) => {
+  { destinationListId, sourceListId }: MoveCardInThisList,
+) =>
+  lists.map((list) => {
     if (list.id === sourceListId) {
       return {
         ...list,
@@ -74,4 +84,3 @@ export function moveCardInThisList(
     }
     return list;
   });
-}

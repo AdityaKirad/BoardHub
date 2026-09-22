@@ -6,6 +6,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { ACTIONS } from "../../action";
@@ -48,7 +49,6 @@ export function ListActionDropdown() {
 
     void fetcher.submit(formData, {
       method: "POST",
-      flushSync: true,
     });
 
     openSet(false);
@@ -61,10 +61,12 @@ export function ListActionDropdown() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-60 px-0 py-3 *:data-[slot=dropdown-menu-item]:rounded-none *:data-[slot=dropdown-menu-item]:py-2"
-        onAnimationEnd={(evt) =>
-          !open && action && evt.target === evt.currentTarget && actionSet(null)
-        }
+        className="w-60 px-0 py-3 *:data-[slot=dropdown-menu-item]:rounded-none *:data-[slot=dropdown-menu-item]:p-2"
+        onAnimationEnd={(evt) => {
+          if (!open && action && evt.target === evt.currentTarget) {
+            actionSet(null);
+          }
+        }}
         onEscapeKeyDown={(evt) => {
           evt.preventDefault();
           if (action) {
@@ -133,19 +135,51 @@ export function ListActionDropdown() {
               onSelect={handleDropdownMenuItemSelect("SORT_LIST")}>
               Sort by
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <fetcher.Form method="POST">
-                <input
-                  type="hidden"
-                  name="action"
-                  value={ACTIONS.TOGGLE_PIN_LIST}
-                />
-                <input type="hidden" name="id" value={list.id} />
+            <DropdownMenuItem
+              onSelect={() => {
+                const formData = new FormData();
 
-                <button className="w-full text-left" type="submit">
-                  {list.pinned ? "Unpin list" : "Pin list"}
-                </button>
-              </fetcher.Form>
+                formData.append("action", ACTIONS.TOGGLE_PIN_LIST);
+                formData.append("id", list.id);
+
+                void fetcher.submit(formData, {
+                  method: "POST",
+                });
+              }}>
+              {list.pinned ? "Unpin list" : "Pin list"}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator className="mx-2" />
+            <DropdownMenuItem
+              onSelect={(evt) => {
+                evt.preventDefault();
+
+                const formData = new FormData();
+
+                formData.append("action", ACTIONS.ARCHIVE_LIST);
+                formData.append("id", list.id);
+
+                void fetcher.submit(formData, {
+                  method: "POST",
+                });
+
+                openSet(false);
+              }}>
+              Archive this list
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={() => {
+                const formData = new FormData();
+
+                formData.append("action", ACTIONS.ARCHIVE_ALL_CARD_IN_LIST);
+                formData.append("listId", list.id);
+
+                void fetcher.submit(formData, {
+                  method: "POST",
+                });
+
+                openSet(false);
+              }}>
+              Archive all cards in this list
             </DropdownMenuItem>
           </>
         )}

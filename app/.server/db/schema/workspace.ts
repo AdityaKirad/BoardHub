@@ -41,6 +41,7 @@ export const card = sqliteTable("card", {
   title: text().notNull(),
   description: text(),
   completed: integer({ mode: "boolean" }).notNull().default(false),
+  archived: integer({ mode: "boolean" }).notNull().default(false),
   position: text().notNull(),
   createdAt: timestamps.createdAt,
   updatedAt: timestamps.updatedAt,

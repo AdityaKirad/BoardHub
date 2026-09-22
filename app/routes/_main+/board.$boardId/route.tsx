@@ -69,31 +69,46 @@ export default function Page({
   const scrollAreaRef = useRef<React.ComponentRef<"ul">>(null);
   const lists = useOptimisticLists(board.lists);
 
+  const visibleLists = lists.filter((list) => !list.archived);
+  const totalPinnedLists = visibleLists.filter((list) => list.pinned).length;
+
   useBoardDnd(lists, scrollAreaRef);
 
   return (
-    <div className="relative h-[calc(100vh-5.05rem)] supports-[height:100dvh]:h-[calc(100dvh-5.05rem)]">
+    <div className="relative flex-1">
       <div
-        className="absolute inset-0 flex flex-col rounded-xl border"
+        className="absolute inset-0 flex flex-col"
         style={{ background: board.background }}>
         <div className="bg-background/50 p-4 font-bold">
           <BoardTitle title={board.title} />
         </div>
 
         <ul
-          className="flex w-full flex-1 items-start overflow-x-auto overflow-y-hidden p-2"
+          className="relative flex flex-1 overflow-x-auto overflow-y-hidden px-2 pt-2 pb-16"
           ref={scrollAreaRef}>
-          <BoardContextProvider value={{ boards, lists: board.lists }}>
-            {lists.map((list, index) => (
-              <li className="shrink-0 px-1" key={list.id}>
+          <BoardContextProvider value={{ boards, lists: visibleLists }}>
+            {visibleLists
+              .sort((a, b) => Number(b.pinned) - Number(a.pinned))
+              .map((list, index) => (
                 <List
+                  key={list.id}
+                  index={index}
                   list={list}
                   nextListPosition={lists[index + 1]?.position}
                 />
-              </li>
-            ))}
+              ))}
           </BoardContextProvider>
-          <li className="shrink-0 px-1">
+
+          {Boolean(totalPinnedLists) && (
+            <li
+              className="absolute top-2 -z-10 h-full"
+              style={{
+                left: `${totalPinnedLists * 16.5}rem`,
+              }}
+            />
+          )}
+
+          <li className="shrink-0 pl-1">
             <CreateList
               hasLists={lists.length > 0}
               lastListPosition={lists.at(-1)?.position}

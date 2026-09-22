@@ -11,3 +11,5 @@ export const schema = z.discriminatedUnion("action", [
     title: z.string(),
   }),
 ]);
+
+export type WithoutAction<T> = Omit<T, "action">;

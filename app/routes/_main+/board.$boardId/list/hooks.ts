@@ -81,7 +81,7 @@ export function useListDnd({
 }) {
   const cardContainerRef = useRef<React.ComponentRef<"ul">>(null);
   const headerRef = useRef<React.ComponentRef<"div">>(null);
-  const listRef = useRef<React.ComponentRef<"div">>(null);
+  const listRef = useRef<React.ComponentRef<"li">>(null);
 
   const [state, stateSet] = useState<ListState>({ type: "idle" });
 
@@ -94,7 +94,7 @@ export function useListDnd({
       return;
     }
 
-    const rect = list.getBoundingClientRect();
+    const rect = list.children[0]!.getBoundingClientRect();
 
     function setIsCardOver({
       data,
@@ -141,7 +141,6 @@ export function useListDnd({
     return combine(
       draggable({
         element: header,
-        canDrag: () => !pinned,
         getInitialData: () => ({
           listId,
           rect,

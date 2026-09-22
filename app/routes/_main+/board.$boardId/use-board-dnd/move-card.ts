@@ -52,5 +52,5 @@ export function moveCard(
   formData.append("listId", targetListId);
   formData.append("position", generateKeyBetween(prevPos, nextPos));
 
-  void submit(formData, { method: "POST", navigate: false });
+  void submit(formData, { method: "POST", navigate: false, flushSync: true });
 }

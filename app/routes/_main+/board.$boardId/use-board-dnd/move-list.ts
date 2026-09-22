@@ -37,8 +37,8 @@ export function moveList(
   const formData = new FormData();
 
   formData.append("action", ACTIONS.MOVE_LIST);
-  formData.append("listId", sourceListId);
+  formData.append("id", sourceListId);
   formData.append("position", position);
 
-  void submit(formData, { method: "POST", navigate: false });
+  void submit(formData, { method: "POST", flushSync: true, navigate: false });
 }

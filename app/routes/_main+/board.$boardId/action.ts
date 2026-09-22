@@ -1,4 +1,7 @@
 export const ACTIONS = {
+  ARCHIVE_ALL_CARD_IN_LIST: "archive-all-card-in-list",
+  ARCHIVE_CARD: "archive-card",
+  ARCHIVE_LIST: "archive-list",
   COPY_LIST: "copy-list",
   CREATE_LIST: "create-list",
   CREATE_CARD: "create-card",

@@ -99,6 +99,11 @@
     @apply bg-background text-foreground;
   }
 
+  html,
+  body {
+    @apply h-full;
+  }
+
   img {
     background-repeat: no-repeat;
     background-size: cover;

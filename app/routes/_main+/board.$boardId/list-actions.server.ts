@@ -2,12 +2,16 @@ import { eq, not } from "drizzle-orm";
 import { db } from "~/.server/db";
 import { card, list } from "~/.server/db/schema/workspace";
 import type {
+  ArchiveList,
   CopyList,
   CreateList,
   MoveList,
   TogglePinList,
   UpdateListTitle,
 } from "./schema/list";
+
+export const handleArchiveList = ({ id }: ArchiveList) =>
+  db.update(list).set({ archived: true }).where(eq(list.id, id));
 
 export const handleCopyList = ({
   sourceListId,
@@ -46,8 +50,8 @@ export const handleCreateList = (listData: CreateList & { boardId: string }) =>
 export const handleUpdateListTitle = ({ id, title }: UpdateListTitle) =>
   db.update(list).set({ title }).where(eq(list.id, id));
 
-export const handleMoveList = ({ boardId, listId, position }: MoveList) =>
-  db.update(list).set({ boardId, position }).where(eq(list.id, listId));
+export const handleMoveList = ({ boardId, id, position }: MoveList) =>
+  db.update(list).set({ boardId, position }).where(eq(list.id, id));
 
 export const handleTogglePinList = ({ id }: TogglePinList) =>
   db

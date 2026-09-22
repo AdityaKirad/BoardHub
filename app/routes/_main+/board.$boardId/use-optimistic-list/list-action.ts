@@ -1,12 +1,20 @@
+import type {
+  ArchiveList,
+  CopyList,
+  CreateList,
+  MoveList,
+  TogglePinList,
+} from "../schema/list";
 import type { Lists } from "../types";
 
-export const createList = (
-  lists: Lists,
-  listData: { id: string; title: string; position: string },
-) => [
+export const archiveList = (lists: Lists, { id }: ArchiveList) =>
+  lists.map((list) => (list.id === id ? { ...list, archived: true } : list));
+
+export const createList = (lists: Lists, listData: CreateList) => [
   ...lists,
   {
     ...listData,
+    pinned: false,
     archived: false,
     color: "",
     cards: [],
@@ -15,15 +23,7 @@ export const createList = (
 
 export const copyList = (
   lists: Lists,
-  {
-    sourceListId,
-    ...listData
-  }: {
-    id: string;
-    sourceListId: string;
-    position: string;
-    title: string;
-  },
+  { sourceListId, ...listData }: CopyList,
 ) => [
   ...lists,
   {
@@ -37,22 +37,15 @@ export const moveList = (
   {
     boardId,
     currentBoardId,
-    sourceListId,
+    id,
     position,
-  }: {
-    boardId: string | undefined;
-    currentBoardId: string;
-    sourceListId: string;
-    position: string;
-  },
+  }: MoveList & { currentBoardId: string },
 ) =>
   boardId && boardId !== currentBoardId
-    ? lists.filter((list) => list.id !== sourceListId)
-    : lists.map((list) =>
-        list.id === sourceListId ? { ...list, position } : list,
-      );
+    ? lists.filter((list) => list.id !== id)
+    : lists.map((list) => (list.id === id ? { ...list, position } : list));
 
-export const togglePinList = (lists: Lists, { id }: { id: string }) =>
+export const togglePinList = (lists: Lists, { id }: TogglePinList) =>
   lists.map((list) =>
     list.id === id ? { ...list, pinned: !list.pinned } : list,
   );

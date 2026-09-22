@@ -12,6 +12,7 @@ import { ListContextProvider } from "./list-context";
 import type { List } from "../types";
 
 function ListDisplay({
+  index,
   cardContainerRef,
   headerRef,
   listRef,
@@ -21,9 +22,10 @@ function ListDisplay({
 }: {
   list: List;
   state: ListState;
+  index?: number;
   cardContainerRef?: React.RefObject<React.ComponentRef<"ul"> | null>;
   headerRef?: React.RefObject<React.ComponentRef<"div"> | null>;
-  listRef?: React.RefObject<React.ComponentRef<"div"> | null>;
+  listRef?: React.RefObject<React.ComponentRef<"li"> | null>;
   nextListPosition?: string;
 }) {
   const {
@@ -34,82 +36,96 @@ function ListDisplay({
     openCreateCard,
     openCreateCardAtEnd,
   } = useCreateCard(list.cards, cardContainerRef);
-  const cards = list.cards;
+
+  const cards = list.cards.filter((card) => !card.archived);
 
   return (
-    <ListContextProvider value={{ list, nextListPosition, openCreateCard }}>
+    <>
       {state.type === "is-column-over" && state.closestEdge === "left" && (
         <ListPlaceholder rect={state.rect} />
       )}
-      <div
-        className={cn(
-          "bg-card relative flex max-h-[calc(100%-3rem)] w-64 flex-col overflow-hidden rounded-lg",
-          {
-            "outline-2 outline-offset-2 outline-white":
-              state.type === "is-card-over",
-          },
-        )}
-        ref={listRef}>
-        <ListHeader ref={headerRef} />
-        <ul
-          className={cn("relative min-h-0 flex-1 overflow-y-auto", {
-            "p-2": cards.length || createIndex !== null,
-            "space-y-2": state.type === "is-card-over",
-          })}
-          ref={cardContainerRef}>
-          {createIndex === 0 && createPosition && (
-            <CreateCard
-              position={createPosition}
-              onNewCard={handleNewCard}
-              onCancel={closeCreateCard}
-            />
-          )}
-          {createIndex !== 0 &&
-            cards.length > 0 &&
-            state.type !== "is-card-over" && (
-              <CreateCardButton onClick={() => openCreateCard(0)} />
-            )}
-          {cards.map((card, index) => (
-            <Fragment key={card.id}>
-              <ListItem {...card} />
-              {createIndex === index + 1 && createPosition ? (
+      <ListContextProvider value={{ list, nextListPosition, openCreateCard }}>
+        <li
+          className={cn("shrink-0", index === 0 ? "pr-1" : "px-1")}
+          ref={listRef}>
+          <div
+            className={cn(
+              "bg-card relative flex max-h-full w-64 flex-col overflow-hidden rounded-lg",
+              {
+                "outline-2 outline-offset-2 outline-white":
+                  state.type === "is-card-over",
+              },
+            )}>
+            <ListHeader ref={headerRef} totalCards={cards.length} />
+            <ul
+              className={cn(
+                "relative min-h-0 flex-1 overflow-y-auto scroll-smooth",
+                {
+                  "p-2": cards.length || createIndex !== null,
+                  "space-y-2": state.type === "is-card-over",
+                },
+              )}
+              ref={cardContainerRef}>
+              {createIndex === 0 && createPosition && (
                 <CreateCard
                   position={createPosition}
                   onNewCard={handleNewCard}
                   onCancel={closeCreateCard}
                 />
-              ) : state.type !== "is-card-over" && index < cards.length - 1 ? (
-                <CreateCardButton onClick={() => openCreateCard(index + 1)} />
-              ) : null}
-            </Fragment>
-          ))}
-          {state.type === "is-card-over" && !state.isOverChildCard && (
-            <CardPlaceholder rect={state.rect} />
-          )}
-        </ul>
+              )}
+              {createIndex !== 0 &&
+                cards.length > 0 &&
+                state.type !== "is-card-over" && (
+                  <CreateCardButton onClick={() => openCreateCard(0)} />
+                )}
+              {cards.map((card, index) => (
+                <Fragment key={card.id}>
+                  <ListItem {...card} />
+                  {createIndex === index + 1 && createPosition ? (
+                    <CreateCard
+                      position={createPosition}
+                      onNewCard={handleNewCard}
+                      onCancel={closeCreateCard}
+                    />
+                  ) : state.type !== "is-card-over" &&
+                    index < cards.length - 1 ? (
+                    <CreateCardButton
+                      onClick={() => openCreateCard(index + 1)}
+                    />
+                  ) : null}
+                </Fragment>
+              ))}
+              {state.type === "is-card-over" && !state.isOverChildCard && (
+                <CardPlaceholder rect={state.rect} />
+              )}
+            </ul>
 
-        {createIndex === null && (
-          <div className="bg-card p-2">
-            <Button
-              className="w-full justify-start rounded-lg"
-              variant="ghost"
-              onClick={openCreateCardAtEnd}>
-              <PlusIcon /> Create card
-            </Button>
+            {createIndex === null && (
+              <div className="bg-card p-2">
+                <Button
+                  className="w-full justify-start rounded-lg"
+                  variant="ghost"
+                  onClick={openCreateCardAtEnd}>
+                  <PlusIcon /> Create card
+                </Button>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </li>
+      </ListContextProvider>
       {state.type === "is-column-over" && state.closestEdge === "right" && (
         <ListPlaceholder rect={state.rect} />
       )}
-    </ListContextProvider>
+    </>
   );
 }
 
 export function List({
+  index,
   list,
   nextListPosition,
 }: {
+  index: number;
   list: List;
   nextListPosition: string | undefined;
 }) {
@@ -126,6 +142,7 @@ export function List({
         list={list}
         nextListPosition={nextListPosition}
         state={state}
+        index={index}
       />
       {state.type === "preview" &&
         createPortal(

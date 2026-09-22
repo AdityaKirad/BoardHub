@@ -1,5 +1,16 @@
 import { z } from "zod";
 import { ACTIONS } from "../action";
+import type { WithoutAction } from ".";
+
+const archiveAllCardInList = z.object({
+  action: z.literal(ACTIONS.ARCHIVE_ALL_CARD_IN_LIST),
+  listId: z.string(),
+});
+
+const archiveCard = z.object({
+  action: z.literal(ACTIONS.ARCHIVE_CARD),
+  id: z.string(),
+});
 
 const createCard = z.object({
   action: z.literal(ACTIONS.CREATE_CARD),
@@ -51,6 +62,8 @@ const updateCardTitle = z.object({
 });
 
 export const cardSchemas = [
+  archiveAllCardInList,
+  archiveCard,
   createCard,
   moveCard,
   moveCardInThisList,
@@ -59,15 +72,17 @@ export const cardSchemas = [
   updateCardTitle,
 ] as const;
 
-export type CreateCard = Omit<z.infer<typeof createCard>, "action">;
-export type MoveCard = Omit<z.infer<typeof moveCard>, "action">;
-export type MoveCardInThisList = Omit<
-  z.infer<typeof moveCardInThisList>,
-  "action"
+export type ArchiveAllCardInList = WithoutAction<
+  z.infer<typeof archiveAllCardInList>
 >;
-export type ToggleCardCompletion = Omit<
-  z.infer<typeof toggleCardCompletion>,
-  "action"
+export type ArchiveCard = WithoutAction<z.infer<typeof archiveCard>>;
+export type CreateCard = WithoutAction<z.infer<typeof createCard>>;
+export type MoveCard = WithoutAction<z.infer<typeof moveCard>>;
+export type MoveCardInThisList = WithoutAction<
+  z.infer<typeof moveCardInThisList>
 >;
-export type SortList = Omit<z.infer<typeof sortList>, "action">;
-export type UpdateCardTitle = Omit<z.infer<typeof updateCardTitle>, "action">;
+export type ToggleCardCompletion = WithoutAction<
+  z.infer<typeof toggleCardCompletion>
+>;
+export type SortList = WithoutAction<z.infer<typeof sortList>>;
+export type UpdateCardTitle = WithoutAction<z.infer<typeof updateCardTitle>>;
