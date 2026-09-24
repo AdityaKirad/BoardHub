@@ -49,6 +49,7 @@ export function moveCard(
 
   formData.append("action", ACTIONS.MOVE_CARD);
   formData.append("id", cardId);
+  formData.append("sourceListId", source.data.listId as string);
   formData.append("listId", targetListId);
   formData.append("position", generateKeyBetween(prevPos, nextPos));
 

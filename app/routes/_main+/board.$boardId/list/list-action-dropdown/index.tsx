@@ -22,11 +22,32 @@ type DROPDOWN_ACTIONS = keyof Pick<
   "COPY_LIST" | "MOVE_CARDS_IN_THIS_LIST" | "MOVE_LIST" | "SORT_LIST"
 >;
 
-const actionTitle: Record<DROPDOWN_ACTIONS, string> = {
-  COPY_LIST: "Copy list",
-  MOVE_LIST: "Move list",
-  MOVE_CARDS_IN_THIS_LIST: "Move all cards in this list",
-  SORT_LIST: "Sort by",
+const actionConfig: Record<
+  DROPDOWN_ACTIONS,
+  {
+    Component: React.ComponentType<{ onEscape: () => void }>;
+    title: string;
+    submitLabel?: string;
+  }
+> = {
+  COPY_LIST: {
+    Component: CopyListFormContent,
+    title: "Copy list",
+    submitLabel: "Create",
+  },
+  MOVE_LIST: {
+    Component: MoveListFormContent,
+    title: "Move list",
+    submitLabel: "Move",
+  },
+  MOVE_CARDS_IN_THIS_LIST: {
+    Component: MoveAllCardsInThisFormContent,
+    title: "Move all cards in this list",
+  },
+  SORT_LIST: {
+    Component: SortByFormContent,
+    title: "Sort by",
+  },
 };
 
 export function ListActionDropdown() {
@@ -53,6 +74,20 @@ export function ListActionDropdown() {
 
     openSet(false);
   }
+
+  function submitListAction(action: string) {
+    return () => {
+      const formData = new FormData();
+
+      formData.append("action", action);
+      formData.append("id", list.id);
+
+      void fetcher.submit(formData, {
+        method: "POST",
+      });
+    };
+  }
+
   return (
     <DropdownMenu open={open} onOpenChange={openSet}>
       <DropdownMenuTrigger asChild>
@@ -85,7 +120,7 @@ export function ListActionDropdown() {
             </Button>
           )}
           <p className="flex-1 text-center text-sm font-medium">
-            {action ? actionTitle[action] : "List actions"}
+            {action ? actionConfig[action].title : "List actions"}
           </p>
           <Button variant="ghost" size="icon-sm" onClick={() => openSet(false)}>
             <XIcon />
@@ -98,19 +133,19 @@ export function ListActionDropdown() {
               "px-2": action !== "MOVE_CARDS_IN_THIS_LIST",
             })}
             onSubmit={handleSubmit}>
-            {action === "COPY_LIST" && (
-              <CopyListFormContent onEscape={() => actionSet(null)} />
-            )}
-            {action === "MOVE_LIST" && <MoveListFormContent />}
-            {action === "MOVE_CARDS_IN_THIS_LIST" && (
-              <MoveAllCardsInThisFormContent />
-            )}
-            {action === "SORT_LIST" && <SortByFormContent />}
-            {!["MOVE_CARDS_IN_THIS_LIST", "SORT_LIST"].includes(action) && (
-              <Button className="w-fit" type="submit">
-                {action === "COPY_LIST" ? "Create" : "Move"}
-              </Button>
-            )}
+            {(() => {
+              const { Component, submitLabel } = actionConfig[action];
+              return (
+                <>
+                  <Component onEscape={() => actionSet(null)} />
+                  {submitLabel && (
+                    <Button className="w-fit" type="submit">
+                      {submitLabel}
+                    </Button>
+                  )}
+                </>
+              );
+            })()}
           </fetcher.Form>
         ) : (
           <>
@@ -136,49 +171,15 @@ export function ListActionDropdown() {
               Sort by
             </DropdownMenuItem>
             <DropdownMenuItem
-              onSelect={() => {
-                const formData = new FormData();
-
-                formData.append("action", ACTIONS.TOGGLE_PIN_LIST);
-                formData.append("id", list.id);
-
-                void fetcher.submit(formData, {
-                  method: "POST",
-                });
-              }}>
+              onSelect={submitListAction(ACTIONS.TOGGLE_PIN_LIST)}>
               {list.pinned ? "Unpin list" : "Pin list"}
             </DropdownMenuItem>
             <DropdownMenuSeparator className="mx-2" />
-            <DropdownMenuItem
-              onSelect={(evt) => {
-                evt.preventDefault();
-
-                const formData = new FormData();
-
-                formData.append("action", ACTIONS.ARCHIVE_LIST);
-                formData.append("id", list.id);
-
-                void fetcher.submit(formData, {
-                  method: "POST",
-                });
-
-                openSet(false);
-              }}>
+            <DropdownMenuItem onSelect={submitListAction(ACTIONS.ARCHIVE_LIST)}>
               Archive this list
             </DropdownMenuItem>
             <DropdownMenuItem
-              onSelect={() => {
-                const formData = new FormData();
-
-                formData.append("action", ACTIONS.ARCHIVE_ALL_CARD_IN_LIST);
-                formData.append("listId", list.id);
-
-                void fetcher.submit(formData, {
-                  method: "POST",
-                });
-
-                openSet(false);
-              }}>
+              onSelect={submitListAction(ACTIONS.ARCHIVE_ALL_CARD_IN_LIST)}>
               Archive all cards in this list
             </DropdownMenuItem>
           </>

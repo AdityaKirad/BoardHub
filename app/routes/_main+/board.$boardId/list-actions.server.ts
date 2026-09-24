@@ -34,7 +34,8 @@ export const handleCopyList = ({
         completed: true,
         position: true,
       },
-      where: (card, { eq }) => eq(card.listId, sourceListId),
+      where: (card, { and, eq }) =>
+        and(eq(card.listId, sourceListId), eq(card.archived, false)),
     });
 
     if (cards.length) {

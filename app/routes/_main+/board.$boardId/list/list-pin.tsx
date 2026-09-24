@@ -8,7 +8,7 @@ export function ListPin() {
   const { list } = useListContext();
   if (list.pinned) {
     return (
-      <Form method="POST">
+      <Form method="POST" navigate={false}>
         <input type="hidden" name="action" value={ACTIONS.TOGGLE_PIN_LIST} />
         <input type="hidden" name="id" value={list.id} />
 

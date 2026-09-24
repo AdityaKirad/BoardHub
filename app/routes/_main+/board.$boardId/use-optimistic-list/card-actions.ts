@@ -32,17 +32,19 @@ export const createCard = (lists: Lists, cardData: CreateCard) =>
       : list,
   );
 
-export function moveCard(lists: Lists, { id, listId, position }: MoveCard) {
-  const card = lists
-    .flatMap((list) => list.cards)
-    .find((card) => card.id === id);
+export function moveCard(
+  lists: Lists,
+  { id, listId, sourceListId, position }: MoveCard,
+) {
+  const sourceList = lists.find((list) => list.id === sourceListId);
+  const card = sourceList?.cards.find((card) => card.id === id);
 
   if (!card) {
     return lists;
   }
 
   return lists.map((list) => {
-    if (list.id !== listId && list.id !== card?.listId) {
+    if (list.id !== listId && list.id !== sourceListId) {
       return list;
     }
     const listWithoutCard = list.cards.filter((card) => card.id !== id);

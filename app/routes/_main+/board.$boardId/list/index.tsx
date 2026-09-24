@@ -12,10 +12,10 @@ import { ListContextProvider } from "./list-context";
 import type { List } from "../types";
 
 function ListDisplay({
-  index,
   cardContainerRef,
   headerRef,
   listRef,
+  index,
   list,
   nextListPosition,
   state,
@@ -46,8 +46,11 @@ function ListDisplay({
       )}
       <ListContextProvider value={{ list, nextListPosition, openCreateCard }}>
         <li
-          className={cn("shrink-0", index === 0 ? "pr-1" : "px-1")}
-          ref={listRef}>
+          className="shrink-0 px-1 first:pl-0"
+          ref={listRef}
+          style={{
+            order: list.pinned ? -1 : index,
+          }}>
           <div
             className={cn(
               "bg-card relative flex max-h-full w-64 flex-col overflow-hidden rounded-lg",
@@ -139,10 +142,10 @@ export function List({
         cardContainerRef={cardContainerRef}
         headerRef={headerRef}
         listRef={listRef}
+        index={index}
         list={list}
         nextListPosition={nextListPosition}
         state={state}
-        index={index}
       />
       {state.type === "preview" &&
         createPortal(

@@ -24,6 +24,7 @@ const moveCard = z.object({
   action: z.literal(ACTIONS.MOVE_CARD),
   id: z.string(),
   listId: z.string(),
+  sourceListId: z.string(),
   position: z.string(),
 });
 

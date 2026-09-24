@@ -25,7 +25,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
         columns: { id: true, title: true },
         with: {
           lists: {
-            columns: { id: true, position: true },
+            columns: { id: true, position: true, archived: true },
             orderBy: (list, { asc }) => asc(list.position),
           },
         },
@@ -66,11 +66,11 @@ export async function loader({ params, request }: Route.LoaderArgs) {
 export default function Page({
   loaderData: { board, boards },
 }: Route.ComponentProps) {
-  const scrollAreaRef = useRef<React.ComponentRef<"ul">>(null);
-  const lists = useOptimisticLists(board.lists);
+  let lists = board.lists.filter((list) => !list.archived);
+  const totalPinnedLists = lists.filter((list) => list.pinned).length;
 
-  const visibleLists = lists.filter((list) => !list.archived);
-  const totalPinnedLists = visibleLists.filter((list) => list.pinned).length;
+  const scrollAreaRef = useRef<React.ComponentRef<"ul">>(null);
+  lists = useOptimisticLists(lists);
 
   useBoardDnd(lists, scrollAreaRef);
 
@@ -86,17 +86,15 @@ export default function Page({
         <ul
           className="relative flex flex-1 overflow-x-auto overflow-y-hidden px-2 pt-2 pb-16"
           ref={scrollAreaRef}>
-          <BoardContextProvider value={{ boards, lists: visibleLists }}>
-            {visibleLists
-              .sort((a, b) => Number(b.pinned) - Number(a.pinned))
-              .map((list, index) => (
-                <List
-                  key={list.id}
-                  index={index}
-                  list={list}
-                  nextListPosition={lists[index + 1]?.position}
-                />
-              ))}
+          <BoardContextProvider value={{ boards, lists }}>
+            {lists.map((list, index) => (
+              <List
+                key={list.id}
+                index={index}
+                list={list}
+                nextListPosition={lists[index + 1]?.position}
+              />
+            ))}
           </BoardContextProvider>
 
           {Boolean(totalPinnedLists) && (
@@ -108,7 +106,7 @@ export default function Page({
             />
           )}
 
-          <li className="shrink-0 pl-1">
+          <li className="shrink-0 pl-1" style={{ order: lists.length }}>
             <CreateList
               hasLists={lists.length > 0}
               lastListPosition={lists.at(-1)?.position}
