@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import { ACTIONS } from "../action";
 import { CircleCheckIcon, CircleIcon } from "lucide-react";
-import type { Card } from "../hooks";
+import type { Card } from "../types";
 
 export function ToggleCardCompletion({
   card,
@@ -40,7 +40,7 @@ export function ToggleCardCompletion({
       const formData = new FormData();
 
       formData.append("action", ACTIONS.TOGGLE_CARD_COMPLETION);
-      formData.append("cardId", card.id);
+      formData.append("id", card.id);
       formData.append("completed", String(next));
 
       void fetcher.submit(formData, { method: "POST" });

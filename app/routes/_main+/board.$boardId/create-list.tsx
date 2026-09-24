@@ -10,12 +10,12 @@ import { createId } from "@paralleldrive/cuid2";
 import { generateKeyBetween } from "fractional-indexing";
 
 export function CreateList({
+  hasLists,
   lastListPosition,
-  totalLists,
   onNewList,
 }: {
-  lastListPosition: string | null;
-  totalLists: number | undefined;
+  hasLists: boolean;
+  lastListPosition: string | undefined;
   onNewList: () => void;
 }) {
   const submit = useSubmit();
@@ -31,7 +31,7 @@ export function CreateList({
     const formData = new FormData();
 
     formData.append("action", ACTIONS.CREATE_LIST);
-    formData.append("listId", createId());
+    formData.append("id", createId());
     formData.append("title", textAreaRef.current.value);
     formData.append("position", generateKeyBetween(lastListPosition, null));
 
@@ -47,7 +47,7 @@ export function CreateList({
 
   return create ? (
     <Form
-      className="bg-card min-w-0 shrink-0 basis-64 space-y-2 rounded-lg p-2"
+      className="bg-card w-64 space-y-2 rounded-lg p-2"
       ref={formRef}
       onSubmit={(evt) => {
         evt.preventDefault();
@@ -76,13 +76,13 @@ export function CreateList({
     </Form>
   ) : (
     <Button
-      className="min-w-0 shrink-0 basis-64 rounded-lg bg-white/60 hover:bg-white/70 focus-visible:bg-white/70 focus-visible:outline-white/70"
+      className="w-64 rounded-lg bg-white/60 hover:bg-white/70 focus-visible:bg-white/70 focus-visible:outline-white/70"
       size="lg"
       onClick={() => {
         flushSync(() => createSet(true));
         textAreaRef.current?.focus();
       }}>
-      <PlusIcon /> {totalLists ? "Add another list" : "Add list"}
+      <PlusIcon /> {hasLists ? "Add another list" : "Add list"}
     </Button>
   );
 }

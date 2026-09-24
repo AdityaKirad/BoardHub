@@ -6,7 +6,9 @@ import { redirect } from "react-router";
 import type { Route } from "./+types/route";
 import { BoardTitle } from "./board-title";
 import { CreateList } from "./create-list";
-import { useBoardDnd, useOptimisticLists } from "./hooks";
+import { BoardContextProvider } from "./board-context";
+import { useOptimisticLists } from "./use-optimistic-list";
+import { useBoardDnd } from "./use-board-dnd";
 
 export { action } from "./board-action.server";
 
@@ -15,62 +17,106 @@ export const meta: Route.MetaFunction = ({ loaderData: { board } }) => [
 ];
 
 export async function loader({ params, request }: Route.LoaderArgs) {
-  const { username } = await requireUser(request);
+  const { id, username } = await requireUser(request);
 
-  const board = await db.query.board.findFirst({
-    columns: { id: false, userId: false },
-    with: {
-      lists: {
-        columns: { boardId: false, createdAt: false, updatedAt: false },
-        orderBy: (list, { asc }) => asc(list.position),
+  const [boards, board] = await Promise.all([
+    db.query.board
+      .findMany({
+        columns: { id: true, title: true },
         with: {
-          cards: {
-            columns: { description: false, createdAt: false, updatedAt: false },
-            orderBy: (card, { asc }) => asc(card.position),
+          lists: {
+            columns: { id: true, position: true, archived: true },
+            orderBy: (list, { asc }) => asc(list.position),
           },
         },
-      },
-    },
-    where: (board, { eq }) => eq(board.id, params.boardId),
-  });
+        where: (board, { eq }) => eq(board.userId, id),
+      })
+      .execute(),
+    db.query.board
+      .findFirst({
+        columns: { userId: false },
+        with: {
+          lists: {
+            columns: { boardId: false, createdAt: false, updatedAt: false },
+            orderBy: (list, { asc }) => asc(list.position),
+            with: {
+              cards: {
+                columns: {
+                  description: false,
+                  createdAt: false,
+                  updatedAt: false,
+                },
+                orderBy: (card, { asc }) => asc(card.position),
+              },
+            },
+          },
+        },
+        where: (board, { eq }) => eq(board.id, params.boardId),
+      })
+      .execute(),
+  ]);
 
   if (!board) {
     return redirect(`/${username}/boards`);
   }
 
-  return { board };
+  return { board, boards };
 }
 
-export default function Page({ loaderData: { board } }: Route.ComponentProps) {
+export default function Page({
+  loaderData: { board, boards },
+}: Route.ComponentProps) {
+  let lists = board.lists.filter((list) => !list.archived);
+  const totalPinnedLists = lists.filter((list) => list.pinned).length;
+
   const scrollAreaRef = useRef<React.ComponentRef<"ul">>(null);
-  const lists = useOptimisticLists(board.lists);
+  lists = useOptimisticLists(lists);
 
   useBoardDnd(lists, scrollAreaRef);
 
   return (
-    <div className="relative h-[calc(100vh-5.05rem)] supports-[height:100dvh]:h-[calc(100dvh-5.05rem)]">
+    <div className="relative flex-1">
       <div
-        className="absolute inset-0 flex flex-col rounded-xl border"
+        className="absolute inset-0 flex flex-col"
         style={{ background: board.background }}>
         <div className="bg-background/50 p-4 font-bold">
           <BoardTitle title={board.title} />
         </div>
+
         <ul
-          className="flex w-full flex-1 items-start gap-4 overflow-x-auto overflow-y-hidden p-2"
+          className="relative flex flex-1 overflow-x-auto overflow-y-hidden px-2 pt-2 pb-16"
           ref={scrollAreaRef}>
-          {lists.map((list) => (
-            <List key={list.id} list={list} />
-          ))}
-          <CreateList
-            lastListPosition={lists.at(-1)?.position ?? null}
-            totalLists={lists.length}
-            onNewList={() => {
-              if (scrollAreaRef.current) {
-                scrollAreaRef.current.scrollLeft =
-                  scrollAreaRef.current.scrollWidth;
+          <BoardContextProvider value={{ boards, lists }}>
+            {lists.map((list, index) => (
+              <List
+                key={list.id}
+                index={index}
+                list={list}
+                nextListPosition={lists[index + 1]?.position}
+              />
+            ))}
+          </BoardContextProvider>
+
+          {Boolean(totalPinnedLists) && (
+            <li
+              className="absolute top-2 -z-10 h-full"
+              style={{
+                left: `${totalPinnedLists * 16.5}rem`,
+              }}
+            />
+          )}
+
+          <li className="shrink-0 pl-1" style={{ order: lists.length }}>
+            <CreateList
+              hasLists={lists.length > 0}
+              lastListPosition={lists.at(-1)?.position}
+              onNewList={() =>
+                scrollAreaRef.current &&
+                (scrollAreaRef.current.scrollLeft =
+                  scrollAreaRef.current.scrollWidth)
               }
-            }}
-          />
+            />
+          </li>
         </ul>
       </div>
     </div>

@@ -5,7 +5,7 @@ import { cn } from "~/lib/utils";
 import { useListItem, type CardState } from "./use-list-item";
 import { EditCardTitle, useEditCardTitle } from "./edit-card-title";
 import { createPortal } from "react-dom";
-import type { Card } from "../hooks";
+import type { Card } from "../types";
 
 function ListItemDisplay({
   card,
