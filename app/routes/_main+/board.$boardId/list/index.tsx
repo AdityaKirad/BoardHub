@@ -28,6 +28,8 @@ function ListDisplay({
   listRef?: React.RefObject<React.ComponentRef<"li"> | null>;
   nextListPosition?: string;
 }) {
+  const cards = list.cards.filter((card) => !card.archived);
+
   const {
     createIndex,
     createPosition,
@@ -35,16 +37,15 @@ function ListDisplay({
     handleNewCard,
     openCreateCard,
     openCreateCardAtEnd,
-  } = useCreateCard(list.cards, cardContainerRef);
-
-  const cards = list.cards.filter((card) => !card.archived);
+  } = useCreateCard(cards, cardContainerRef);
 
   return (
     <>
       {state.type === "is-column-over" && state.closestEdge === "left" && (
         <ListPlaceholder rect={state.rect} />
       )}
-      <ListContextProvider value={{ list, nextListPosition, openCreateCard }}>
+      <ListContextProvider
+        value={{ cards, list, nextListPosition, openCreateCard }}>
         <li
           className="shrink-0 px-1 first:pl-0"
           ref={listRef}

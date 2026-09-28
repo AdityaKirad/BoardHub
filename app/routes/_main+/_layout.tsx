@@ -30,7 +30,7 @@ import type { loader } from "~/root";
 export default function Page() {
   const data = useRouteLoaderData<typeof loader>("root");
   return (
-    <div className="flex h-full flex-col">
+    <header className="flex h-full flex-col">
       <div className="flex items-center justify-between border-b px-2 py-1">
         <Link
           className="hover:bg-border focus-visible:bg-muted flex items-center gap-0.5 rounded px-1.5 py-1 transition-colors"
@@ -56,7 +56,7 @@ export default function Page() {
       </div>
 
       <Outlet />
-    </div>
+    </header>
   );
 }
 

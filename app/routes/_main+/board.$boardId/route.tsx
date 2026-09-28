@@ -67,15 +67,16 @@ export default function Page({
   loaderData: { board, boards },
 }: Route.ComponentProps) {
   let lists = board.lists.filter((list) => !list.archived);
-  const totalPinnedLists = lists.filter((list) => list.pinned).length;
 
   const scrollAreaRef = useRef<React.ComponentRef<"ul">>(null);
-  lists = useOptimisticLists(lists);
+  lists = useOptimisticLists(lists).filter((list) => !list.archived);
+
+  const totalPinnedLists = lists.filter((list) => list.pinned).length;
 
   useBoardDnd(lists, scrollAreaRef);
 
   return (
-    <div className="relative flex-1">
+    <main className="relative flex-1">
       <div
         className="absolute inset-0 flex flex-col"
         style={{ background: board.background }}>
@@ -119,6 +120,6 @@ export default function Page({
           </li>
         </ul>
       </div>
-    </div>
+    </main>
   );
 }

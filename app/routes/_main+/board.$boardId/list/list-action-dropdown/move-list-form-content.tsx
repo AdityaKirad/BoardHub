@@ -12,7 +12,6 @@ import {
 import { generateKeyBetween } from "fractional-indexing";
 import { ACTIONS } from "../../action";
 import { useParams } from "react-router";
-import { cn } from "~/lib/utils";
 import type { List } from "../../types";
 
 export function MoveListFormContent() {
@@ -42,12 +41,10 @@ export function MoveListFormContent() {
               return (
                 <SelectItem
                   key={board.id}
-                  className={cn("rounded-none py-2", {
-                    "flex-col items-start": isCurrentBoard,
-                  })}
+                  className="rounded-none py-2"
                   value={board.id}>
-                  <p>{board.title}</p>
-                  <p>{isCurrentBoard && "(current)"}</p>
+                  {board.title}
+                  {isCurrentBoard && "(current)"}
                 </SelectItem>
               );
             })}
@@ -61,7 +58,7 @@ export function MoveListFormContent() {
       />
 
       <input type="hidden" name="action" value={ACTIONS.MOVE_LIST} />
-      <input type="hidden" name="listId" value={list.id} />
+      <input type="hidden" name="id" value={list.id} />
     </>
   );
 }
@@ -89,10 +86,12 @@ function PositionSelectMenu({
     }),
   );
 
+  const isCurrentBoard = selectedBoard === params.boardId;
+
   const currentListIndex = activeLists.findIndex((l) => l.id === list.id);
 
   const defaultPosition =
-    selectedBoard === params.boardId && currentListIndex !== -1
+    isCurrentBoard && currentListIndex !== -1
       ? positionOptions[currentListIndex]?.value
       : positionOptions[0]?.value;
   return (
@@ -106,12 +105,13 @@ function PositionSelectMenu({
           <SelectValue />
         </SelectTrigger>
         <SelectContent className="rounded-sm py-2" position="popper">
-          {positionOptions.map((position) => (
+          {positionOptions.map((position, index) => (
             <SelectItem
               className="rounded-none py-2"
               key={position.value}
               value={position.value}>
               {position.label}
+              {isCurrentBoard && currentListIndex === index && " (current)"}
             </SelectItem>
           ))}
         </SelectContent>

@@ -2,7 +2,8 @@ import { createContext, useContext } from "react";
 import type { List } from "../types";
 
 export const ListContext = createContext<{
-  list: List;
+  list: Omit<List, "cards">;
+  cards: List["cards"];
   nextListPosition: string | undefined;
   openCreateCard: (index: number) => void;
 } | null>(null);

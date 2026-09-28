@@ -14,7 +14,6 @@ import { useListContext } from "../list-context";
 import { CopyListFormContent } from "./copy-list-form-content";
 import { MoveListFormContent } from "./move-list-form-content";
 import { MoveAllCardsInThisFormContent } from "./move-all-cards-in-this-form-content";
-import { cn } from "~/lib/utils";
 import { SortByFormContent } from "./sort-by-form-content";
 
 type DROPDOWN_ACTIONS = keyof Pick<
@@ -23,7 +22,7 @@ type DROPDOWN_ACTIONS = keyof Pick<
 >;
 
 const actionConfig: Record<
-  DROPDOWN_ACTIONS,
+  Exclude<DROPDOWN_ACTIONS, "MOVE_CARDS_IN_THIS_LIST">,
   {
     Component: React.ComponentType<{ onEscape: () => void }>;
     title: string;
@@ -40,10 +39,6 @@ const actionConfig: Record<
     title: "Move list",
     submitLabel: "Move",
   },
-  MOVE_CARDS_IN_THIS_LIST: {
-    Component: MoveAllCardsInThisFormContent,
-    title: "Move all cards in this list",
-  },
   SORT_LIST: {
     Component: SortByFormContent,
     title: "Sort by",
@@ -51,10 +46,16 @@ const actionConfig: Record<
 };
 
 export function ListActionDropdown() {
-  const { list, openCreateCard } = useListContext();
+  const { cards, list, openCreateCard } = useListContext();
   const [open, openSet] = useState(false);
   const [action, actionSet] = useState<DROPDOWN_ACTIONS | null>(null);
   const fetcher = useFetcher();
+  const isMoveAllCardsInThisList = action === "MOVE_CARDS_IN_THIS_LIST";
+  const title = action
+    ? action === "MOVE_CARDS_IN_THIS_LIST"
+      ? "Move all cards in this list"
+      : actionConfig[action].title
+    : "List actions";
 
   function handleDropdownMenuItemSelect(action: DROPDOWN_ACTIONS) {
     return (evt: Event) => {
@@ -119,19 +120,17 @@ export function ListActionDropdown() {
               <ChevronLeftIcon />
             </Button>
           )}
-          <p className="flex-1 text-center text-sm font-medium">
-            {action ? actionConfig[action].title : "List actions"}
-          </p>
+          <p className="flex-1 text-center text-sm font-medium">{title}</p>
           <Button variant="ghost" size="icon-sm" onClick={() => openSet(false)}>
             <XIcon />
           </Button>
         </div>
-        {action ? (
+        {isMoveAllCardsInThisList && <MoveAllCardsInThisFormContent />}
+
+        {action && !isMoveAllCardsInThisList && (
           <fetcher.Form
             method="POST"
-            className={cn("flex flex-col gap-2", {
-              "px-2": action !== "MOVE_CARDS_IN_THIS_LIST",
-            })}
+            className="flex flex-col gap-2 px-2"
             onSubmit={handleSubmit}>
             {(() => {
               const { Component, submitLabel } = actionConfig[action];
@@ -147,7 +146,9 @@ export function ListActionDropdown() {
               );
             })()}
           </fetcher.Form>
-        ) : (
+        )}
+
+        {!action && (
           <>
             <DropdownMenuItem onSelect={() => openCreateCard(0)}>
               Add card
@@ -160,12 +161,14 @@ export function ListActionDropdown() {
               onSelect={handleDropdownMenuItemSelect("MOVE_LIST")}>
               Move list
             </DropdownMenuItem>
-            <DropdownMenuItem
-              onSelect={handleDropdownMenuItemSelect(
-                "MOVE_CARDS_IN_THIS_LIST",
-              )}>
-              Move all cards in this list
-            </DropdownMenuItem>
+            {Boolean(cards.length) && (
+              <DropdownMenuItem
+                onSelect={handleDropdownMenuItemSelect(
+                  "MOVE_CARDS_IN_THIS_LIST",
+                )}>
+                Move all cards in this list
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem
               onSelect={handleDropdownMenuItemSelect("SORT_LIST")}>
               Sort by
@@ -178,10 +181,12 @@ export function ListActionDropdown() {
             <DropdownMenuItem onSelect={submitListAction(ACTIONS.ARCHIVE_LIST)}>
               Archive this list
             </DropdownMenuItem>
-            <DropdownMenuItem
-              onSelect={submitListAction(ACTIONS.ARCHIVE_ALL_CARD_IN_LIST)}>
-              Archive all cards in this list
-            </DropdownMenuItem>
+            {Boolean(cards.length) && (
+              <DropdownMenuItem
+                onSelect={submitListAction(ACTIONS.ARCHIVE_ALL_CARD_IN_LIST)}>
+                Archive all cards in this list
+              </DropdownMenuItem>
+            )}
           </>
         )}
       </DropdownMenuContent>

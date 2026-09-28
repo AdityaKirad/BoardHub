@@ -1,32 +1,34 @@
 import { useBoardContext } from "../../board-context";
 import { useListContext } from "../list-context";
 import { ACTIONS } from "../../action";
+import { DropdownMenuItem } from "~/components/ui/dropdown-menu";
+import { useSubmit } from "react-router";
 
 export function MoveAllCardsInThisFormContent() {
   const { lists } = useBoardContext();
   const { list: currentList } = useListContext();
-  return (
-    <>
-      {lists.map((list) => {
-        const isCurrentList = list.id === currentList.id;
-        return (
-          <button
-            className="focus-visible:bg-accent focus-visible:text-accent-foreground hover:bg-accent hover:text-accent-foreground px-1.5 py-2 text-left text-sm aria-disabled:pointer-events-none aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
-            type="submit"
-            name="sourceListId"
-            value={list.id}
-            key={list.id}
-            aria-disabled={isCurrentList}>
-            {list.title} {isCurrentList && "(current)"}
-          </button>
-        );
-      })}
-      <input type="hidden" name="destinationListId" value={currentList.id} />
-      <input
-        type="hidden"
-        name="action"
-        value={ACTIONS.MOVE_CARDS_IN_THIS_LIST}
-      />
-    </>
-  );
+  const submit = useSubmit();
+
+  return lists.map((list) => {
+    const isCurrentList = list.id === currentList.id;
+    return (
+      <DropdownMenuItem
+        key={list.id}
+        disabled={isCurrentList}
+        onSelect={() => {
+          const formData = new FormData();
+
+          formData.append("action", ACTIONS.MOVE_CARDS_IN_THIS_LIST);
+          formData.append("sourceListId", currentList.id);
+          formData.append("destinationListId", list.id);
+
+          void submit(formData, {
+            method: "POST",
+            navigate: false,
+          });
+        }}>
+        {list.title} {isCurrentList && "(current)"}
+      </DropdownMenuItem>
+    );
+  });
 }
