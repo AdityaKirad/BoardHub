@@ -1,84 +1,20 @@
-import { useRef, useState } from "react";
-import { Form, useFetcher } from "react-router";
-import { Textarea } from "~/components/ui/textarea";
-import { ACTIONS } from "../action";
-import { useOutsideClick } from "~/hooks/use-outside-click";
-import { flushSync } from "react-dom";
-import type { List } from "../hooks";
+import { ListActionDropdown } from "./list-action-dropdown";
+import { ListPin } from "./list-pin";
+import { ListTitle } from "./list-title";
 
-interface ListHeaderProps {
+export function ListHeader({
+  ref,
+  totalCards,
+}: {
   ref?: React.RefObject<HTMLDivElement | null>;
-  list: Pick<List, "id" | "title">;
   totalCards: number;
-}
-
-export function ListHeader({ ref, list, totalCards }: ListHeaderProps) {
+}) {
   return (
     <div className="bg-card flex items-center gap-1 px-2 pt-2" ref={ref}>
-      <ListTitle {...list} />
+      <ListTitle />
       {totalCards}
+      <ListPin />
+      <ListActionDropdown />
     </div>
-  );
-}
-
-function ListTitle({ id, title }: Pick<ListHeaderProps, "list">["list"]) {
-  const fetcher = useFetcher();
-  const ref = useRef<React.ComponentRef<typeof Textarea>>(null);
-  const [edit, editSet] = useState(false);
-
-  if (fetcher.formData?.has("title")) {
-    // eslint-disable-next-line react-hooks/immutability
-    title = fetcher.formData?.get("title") as string;
-  }
-
-  function updateTitle() {
-    const currentValue = ref.current?.value;
-
-    if (currentValue && currentValue !== title) {
-      const formData = new FormData();
-
-      formData.append("action", ACTIONS.UPDATE_LIST_TITLE);
-      formData.append("listId", id);
-      formData.append("title", currentValue);
-
-      void fetcher.submit(formData, {
-        method: "POST",
-        flushSync: true,
-      });
-    }
-
-    editSet(false);
-  }
-
-  useOutsideClick(ref, updateTitle);
-  return (
-    <h2 className="flex-1">
-      {edit ? (
-        <Form className="flex-1" method="POST" onSubmit={updateTitle}>
-          <Textarea
-            className="resize-none"
-            name="title"
-            ref={ref}
-            defaultValue={title}
-            onKeyDown={(evt) => {
-              if (evt.key === "Escape" || evt.key === "Enter") {
-                evt.preventDefault();
-                updateTitle();
-              }
-            }}
-            onBlur={updateTitle}
-          />
-        </Form>
-      ) : (
-        <button
-          className="min-h-8 w-full flex-1 cursor-pointer text-left"
-          onClick={() => {
-            flushSync(() => editSet(true));
-            ref.current?.focus();
-          }}>
-          {title}
-        </button>
-      )}
-    </h2>
   );
 }

@@ -43,7 +43,7 @@ export default function Page({ loaderData: { boards } }: Route.ComponentProps) {
     onValidate: ({ formData }) => parseWithZod(formData, { schema }),
   });
   return (
-    <div className="grid auto-rows-[minmax(100px,auto)] gap-2 sm:grid-cols-4">
+    <main className="grid auto-rows-[minmax(100px,auto)] gap-2 sm:grid-cols-4">
       {boards.map((board) => (
         <Link
           className="bg-card text-card-foreground flex flex-col overflow-hidden rounded-lg"
@@ -112,6 +112,6 @@ export default function Page({ loaderData: { boards } }: Route.ComponentProps) {
           )}
         </DropdownMenuContent>
       </DropdownMenu>
-    </div>
+    </main>
   );
 }

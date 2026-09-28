@@ -8,7 +8,7 @@ export function useOutsideClick<T extends HTMLElement>(
     const controller = new AbortController();
 
     document.addEventListener(
-      "click",
+      "pointerdown",
       (evt) => {
         if (ref?.current && !ref.current.contains(evt.target as Node)) {
           callback();

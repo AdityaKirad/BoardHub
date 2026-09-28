@@ -5,7 +5,7 @@ import { useRef, useState } from "react";
 import { createPortal, flushSync } from "react-dom";
 import { useFetcher, type FetcherWithComponents } from "react-router";
 import { ACTIONS } from "../action";
-import type { Card } from "../hooks";
+import type { Card } from "../types";
 
 type CardTitleProps = Pick<Card, "id" | "title">;
 
@@ -60,7 +60,7 @@ export function useEditCardTitle(
 
     formData.append("action", ACTIONS.UPDATE_CARD_TITLE);
     formData.append("title", currentValue);
-    formData.append("cardId", card.id);
+    formData.append("id", card.id);
 
     void fetcher.submit(formData, {
       method: "POST",

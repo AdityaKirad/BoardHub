@@ -26,7 +26,7 @@ export async function action({ request }: Route.ActionArgs) {
     .values({
       userId: id,
       title: submission.value.title,
-      background: "blue",
+      background: "oklch(0.56 0.14 244.96)",
     })
     .returning({ id: board.id });
 

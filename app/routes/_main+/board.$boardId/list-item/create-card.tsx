@@ -4,23 +4,25 @@ import { Textarea } from "~/components/ui/textarea";
 import { useOutsideClick } from "~/hooks/use-outside-click";
 import { XIcon } from "lucide-react";
 import { useRef } from "react";
-import { Form, useSubmit } from "react-router";
+import { useFetcher } from "react-router";
 import { ACTIONS } from "../action";
+import { useListContext } from "../list/list-context";
 
 export function CreateCard({
-  listId,
   position,
   onNewCard,
   onCancel,
 }: {
-  listId: string;
   position: string;
   onNewCard: () => void;
   onCancel: () => void;
 }) {
-  const submit = useSubmit();
-  const formRef = useRef<React.ComponentRef<typeof Form>>(null);
+  const fetcher = useFetcher();
+  const formRef = useRef<React.ComponentRef<typeof fetcher.Form>>(null);
   const textAreaRef = useRef<React.ComponentRef<typeof Textarea>>(null);
+  const {
+    list: { id: listId },
+  } = useListContext();
 
   function createCard() {
     if (!textAreaRef.current?.value) {
@@ -30,14 +32,13 @@ export function CreateCard({
     const formData = new FormData();
 
     formData.append("action", ACTIONS.CREATE_CARD);
-    formData.append("cardId", createId());
+    formData.append("id", createId());
     formData.append("listId", listId);
     formData.append("title", textAreaRef.current.value);
     formData.append("position", position);
 
-    void submit(formData, {
+    void fetcher.submit(formData, {
       method: "POST",
-      navigate: false,
       flushSync: true,
     });
 
@@ -51,7 +52,7 @@ export function CreateCard({
 
   return (
     <li>
-      <Form
+      <fetcher.Form
         className="my-2 space-y-2"
         method="POST"
         ref={formRef}
@@ -81,7 +82,7 @@ export function CreateCard({
             <XIcon />
           </Button>
         </div>
-      </Form>
+      </fetcher.Form>
     </li>
   );
 }

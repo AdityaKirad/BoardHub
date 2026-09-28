@@ -5,21 +5,21 @@ import { Button } from "~/components/ui/button";
 import { Textarea } from "~/components/ui/textarea";
 import { useOutsideClick } from "~/hooks/use-outside-click";
 import { ACTIONS } from "./action";
-import { Form, useSubmit } from "react-router";
+import { useFetcher } from "react-router";
 import { createId } from "@paralleldrive/cuid2";
 import { generateKeyBetween } from "fractional-indexing";
 
 export function CreateList({
+  hasLists,
   lastListPosition,
-  totalLists,
   onNewList,
 }: {
-  lastListPosition: string | null;
-  totalLists: number | undefined;
+  hasLists: boolean;
+  lastListPosition: string | undefined;
   onNewList: () => void;
 }) {
-  const submit = useSubmit();
-  const formRef = useRef<React.ComponentRef<typeof Form>>(null);
+  const fetcher = useFetcher();
+  const formRef = useRef<React.ComponentRef<typeof fetcher.Form>>(null);
   const textAreaRef = useRef<React.ComponentRef<typeof Textarea>>(null);
   const [create, createSet] = useState(false);
 
@@ -31,11 +31,11 @@ export function CreateList({
     const formData = new FormData();
 
     formData.append("action", ACTIONS.CREATE_LIST);
-    formData.append("listId", createId());
+    formData.append("id", createId());
     formData.append("title", textAreaRef.current.value);
     formData.append("position", generateKeyBetween(lastListPosition, null));
 
-    void submit(formData, { method: "POST", navigate: false, flushSync: true });
+    void fetcher.submit(formData, { method: "POST", flushSync: true });
 
     onNewList();
 
@@ -46,8 +46,8 @@ export function CreateList({
   useOutsideClick(formRef, () => createSet(false));
 
   return create ? (
-    <Form
-      className="bg-card min-w-0 shrink-0 basis-64 space-y-2 rounded-lg p-2"
+    <fetcher.Form
+      className="bg-card w-64 space-y-2 rounded-lg p-2"
       ref={formRef}
       onSubmit={(evt) => {
         evt.preventDefault();
@@ -73,16 +73,16 @@ export function CreateList({
           <XIcon />
         </Button>
       </div>
-    </Form>
+    </fetcher.Form>
   ) : (
     <Button
-      className="min-w-0 shrink-0 basis-64 rounded-lg bg-white/60 hover:bg-white/70 focus-visible:bg-white/70 focus-visible:outline-white/70"
+      className="w-64 rounded-lg bg-white/60 hover:bg-white/70 focus-visible:bg-white/70 focus-visible:outline-white/70"
       size="lg"
       onClick={() => {
         flushSync(() => createSet(true));
         textAreaRef.current?.focus();
       }}>
-      <PlusIcon /> {totalLists ? "Add another list" : "Add list"}
+      <PlusIcon /> {hasLists ? "Add another list" : "Add list"}
     </Button>
   );
 }

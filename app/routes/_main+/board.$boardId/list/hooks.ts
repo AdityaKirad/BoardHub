@@ -6,7 +6,6 @@ import {
 } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { generateKeyBetween } from "fractional-indexing";
 import { useEffect, useRef, useState } from "react";
-import { flushSync } from "react-dom";
 import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
 import { unsafeOverflowAutoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/unsafe-overflow/element";
 import {
@@ -21,7 +20,7 @@ import {
   extractClosestEdge,
   type Edge,
 } from "@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge";
-import type { Cards } from "../hooks";
+import type { Cards } from "../types";
 
 export type ListState =
   | { type: "idle" }
@@ -51,8 +50,7 @@ export function useCreateCard(
     (cardContainerRef.current.scrollTop =
       cardContainerRef.current.scrollHeight);
 
-  const openCreateCard = (index: number) =>
-    flushSync(() => createIndexSet(index));
+  const openCreateCard = (index: number) => createIndexSet(index);
 
   function openCreateCardAtEnd() {
     openCreateCard(cards.length);
@@ -74,7 +72,13 @@ export function useCreateCard(
   };
 }
 
-export function useListDnd(listId: string) {
+export function useListDnd({
+  listId,
+  pinned,
+}: {
+  listId: string;
+  pinned: boolean;
+}) {
   const cardContainerRef = useRef<React.ComponentRef<"ul">>(null);
   const headerRef = useRef<React.ComponentRef<"div">>(null);
   const listRef = useRef<React.ComponentRef<"li">>(null);
@@ -90,7 +94,7 @@ export function useListDnd(listId: string) {
       return;
     }
 
-    const rect = list.getBoundingClientRect();
+    const rect = list.children[0]!.getBoundingClientRect();
 
     function setIsCardOver({
       data,
@@ -216,7 +220,7 @@ export function useListDnd(listId: string) {
         }),
       }),
     );
-  }, [listId]);
+  }, [listId, pinned]);
 
   return {
     cardContainerRef,
