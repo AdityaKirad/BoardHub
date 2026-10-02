@@ -24,9 +24,8 @@ export async function action({ request }: Route.ActionArgs) {
   const [createdBoard] = await db
     .insert(board)
     .values({
+      ...submission.value,
       userId: id,
-      title: submission.value.title,
-      background: "oklch(0.56 0.14 244.96)",
     })
     .returning({ id: board.id });
 

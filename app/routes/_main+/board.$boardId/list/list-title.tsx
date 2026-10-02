@@ -5,6 +5,7 @@ import { ACTIONS } from "../action";
 import { useOutsideClick } from "~/hooks/use-outside-click";
 import { Textarea } from "~/components/ui/textarea";
 import { flushSync } from "react-dom";
+import { cn } from "~/lib/utils";
 
 export function ListTitle() {
   const fetcher = useFetcher();
@@ -39,7 +40,7 @@ export function ListTitle() {
 
   useOutsideClick(ref, updateTitle);
   return (
-    <h2 className="flex-1">
+    <h2 className={cn("flex-1", { "order-1": list.collapsed })}>
       {edit ? (
         <fetcher.Form className="flex-1" method="POST" onSubmit={updateTitle}>
           <Textarea
@@ -58,7 +59,9 @@ export function ListTitle() {
         </fetcher.Form>
       ) : (
         <button
-          className="min-h-8 w-full flex-1 cursor-pointer text-left"
+          className={cn("min-h-8 w-full flex-1 cursor-pointer text-left", {
+            "[writing-mode:vertical-lr]": list.collapsed,
+          })}
           onClick={() => {
             flushSync(() => editSet(true));
             ref.current?.focus();

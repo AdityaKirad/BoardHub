@@ -6,6 +6,7 @@ import {
   copyList,
   createList,
   moveList,
+  toggleCollapseList,
   togglePinList,
 } from "./list-action";
 import {
@@ -71,6 +72,8 @@ function applyOptimisticAction(
       return moveCardInThisList(lists, data);
     case ACTIONS.MOVE_LIST:
       return moveList(lists, { ...data, currentBoardId: boardId });
+    case ACTIONS.TOGGLE_COLLAPSE_LIST:
+      return toggleCollapseList(lists, { id: data.id });
     case ACTIONS.TOGGLE_PIN_LIST:
       return togglePinList(lists, { id: data.id });
     default:

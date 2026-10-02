@@ -16,7 +16,8 @@ export const board = sqliteTable("board", {
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
   title: text().notNull(),
-  background: text().notNull(),
+  background: text().notNull().default("var(--board-default)"),
+  archived: integer({ mode: "boolean" }).notNull().default(false),
 });
 
 export const list = sqliteTable("list", {
@@ -24,10 +25,11 @@ export const list = sqliteTable("list", {
   boardId: text()
     .notNull()
     .references(() => board.id, { onDelete: "cascade" }),
-  color: text(),
+  color: text().notNull().default(""),
   title: text().notNull(),
   position: text().notNull(),
   archived: integer({ mode: "boolean" }).notNull().default(false),
+  collapsed: integer({ mode: "boolean" }).notNull().default(false),
   pinned: integer({ mode: "boolean" }).notNull().default(false),
   createdAt: timestamps.createdAt,
   updatedAt: timestamps.updatedAt,
@@ -40,6 +42,10 @@ export const card = sqliteTable("card", {
     .references(() => list.id, { onDelete: "cascade" }),
   title: text().notNull(),
   description: text(),
+  cover: text()
+    .$type<{ background: string; size: "full" | "half" }>()
+    .notNull()
+    .default({ background: "", size: "full" }),
   completed: integer({ mode: "boolean" }).notNull().default(false),
   archived: integer({ mode: "boolean" }).notNull().default(false),
   position: text().notNull(),

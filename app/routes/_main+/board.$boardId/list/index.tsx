@@ -54,7 +54,8 @@ function ListDisplay({
           }}>
           <div
             className={cn(
-              "bg-card relative flex max-h-full w-64 flex-col overflow-hidden rounded-lg",
+              "bg-card relative flex max-h-full flex-col overflow-hidden rounded-lg",
+              list.collapsed ? "w-fit" : "w-64",
               {
                 "outline-2 outline-offset-2 outline-white":
                   state.type === "is-card-over",
@@ -65,6 +66,7 @@ function ListDisplay({
               className={cn(
                 "relative min-h-0 flex-1 overflow-y-auto scroll-smooth",
                 {
+                  hidden: list.collapsed,
                   "p-2": cards.length || createIndex !== null,
                   "space-y-2": state.type === "is-card-over",
                 },
@@ -105,7 +107,7 @@ function ListDisplay({
             </ul>
 
             {createIndex === null && (
-              <div className="bg-card p-2">
+              <div className={cn("bg-card p-2", { hidden: list.collapsed })}>
                 <Button
                   className="w-full justify-start rounded-lg"
                   variant="ghost"

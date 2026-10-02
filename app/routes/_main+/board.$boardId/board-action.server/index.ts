@@ -6,6 +6,7 @@ import {
   handleCopyList,
   handleCreateList,
   handleMoveList,
+  handleToggleCollapseList,
   handleTogglePinList,
   handleUpdateListTitle,
 } from "./list";
@@ -83,6 +84,9 @@ export async function action({ params, request }: Route.ActionArgs) {
       break;
     case "toggle-card-completion":
       await handleToggleCardCompleted(userId, submission.value);
+      break;
+    case "toggle-collapse-list":
+      await handleToggleCollapseList(userId, submission.value);
       break;
     case "toggle-pin-list":
       await handleTogglePinList(userId, submission.value);

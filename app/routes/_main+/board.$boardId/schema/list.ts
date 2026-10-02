@@ -29,6 +29,11 @@ const moveList = z.object({
   position: z.string(),
 });
 
+const toggleCollapseList = z.object({
+  action: z.literal(ACTIONS.TOGGLE_COLLAPSE_LIST),
+  id: z.string(),
+});
+
 const togglePinList = z.object({
   action: z.literal(ACTIONS.TOGGLE_PIN_LIST),
   id: z.string(),
@@ -45,6 +50,7 @@ export const listSchemas = [
   copyList,
   createList,
   moveList,
+  toggleCollapseList,
   togglePinList,
   updateListTitle,
 ] as const;
@@ -53,5 +59,8 @@ export type ArchiveList = WithoutAction<z.infer<typeof archiveList>>;
 export type CopyList = WithoutAction<z.infer<typeof copyList>>;
 export type CreateList = WithoutAction<z.infer<typeof createList>>;
 export type MoveList = WithoutAction<z.infer<typeof moveList>>;
+export type ToggleCollapseList = WithoutAction<
+  z.infer<typeof toggleCollapseList>
+>;
 export type TogglePinList = WithoutAction<z.infer<typeof togglePinList>>;
 export type UpdateListTitle = WithoutAction<z.infer<typeof updateListTitle>>;

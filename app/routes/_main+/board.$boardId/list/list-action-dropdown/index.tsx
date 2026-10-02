@@ -92,7 +92,10 @@ export function ListActionDropdown() {
   return (
     <DropdownMenu open={open} onOpenChange={openSet}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button
+          className={list.collapsed ? "hidden" : ""}
+          variant="ghost"
+          size="icon">
           <MoreHorizontalIcon />
         </Button>
       </DropdownMenuTrigger>

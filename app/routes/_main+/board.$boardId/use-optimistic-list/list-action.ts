@@ -3,6 +3,7 @@ import type {
   CopyList,
   CreateList,
   MoveList,
+  ToggleCollapseList,
   TogglePinList,
 } from "../schema/list";
 import type { Lists } from "../types";
@@ -16,6 +17,7 @@ export const createList = (lists: Lists, listData: CreateList) => [
     ...listData,
     pinned: false,
     archived: false,
+    collapsed: false,
     color: "",
     cards: [],
   },
@@ -44,6 +46,11 @@ export const moveList = (
   boardId && boardId !== currentBoardId
     ? lists.filter((list) => list.id !== id)
     : lists.map((list) => (list.id === id ? { ...list, position } : list));
+
+export const toggleCollapseList = (lists: Lists, { id }: ToggleCollapseList) =>
+  lists.map((list) =>
+    list.id === id ? { ...list, collapsed: !list.collapsed } : list,
+  );
 
 export const togglePinList = (lists: Lists, { id }: TogglePinList) =>
   lists.map((list) =>

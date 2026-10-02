@@ -6,6 +6,7 @@ import type {
   CopyList,
   CreateList,
   MoveList,
+  ToggleCollapseList,
   TogglePinList,
   UpdateListTitle,
 } from "../schema/list";
@@ -103,6 +104,15 @@ export const handleMoveList = (userId: string, { id, ...moveData }: MoveList) =>
           : undefined,
       ),
     );
+
+export const handleToggleCollapseList = (
+  userId: string,
+  { id }: ToggleCollapseList,
+) =>
+  db
+    .update(list)
+    .set({ collapsed: not(list.collapsed) })
+    .where(and(eq(list.id, id), listBelongsToUser(userId)));
 
 export const handleTogglePinList = (userId: string, { id }: TogglePinList) =>
   db
