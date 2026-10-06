@@ -1,8 +1,8 @@
 import { createId } from "@paralleldrive/cuid2";
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
-import { user } from "./auth";
 import { relations, type InferSelectModel } from "drizzle-orm";
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { timestamps } from "../timestamp";
+import { user } from "./auth";
 
 export const workspace = sqliteTable("workspace", {
   id: text().notNull().primaryKey().$defaultFn(createId),
@@ -42,7 +42,7 @@ export const card = sqliteTable("card", {
     .references(() => list.id, { onDelete: "cascade" }),
   title: text().notNull(),
   description: text(),
-  cover: text()
+  cover: text({ mode: "json" })
     .$type<{ background: string; size: "full" | "half" }>()
     .notNull()
     .default({ background: "", size: "full" }),

@@ -26,7 +26,12 @@ export const createCard = (lists: Lists, cardData: CreateCard) =>
           ...list,
           cards: [
             ...list.cards,
-            { ...cardData, archived: false, completed: false },
+            {
+              ...cardData,
+              archived: false,
+              completed: false,
+              cover: { background: "", size: "full" as const },
+            },
           ],
         }
       : list,
