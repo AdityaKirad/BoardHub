@@ -1,7 +1,7 @@
+import { CircleCheckIcon, CircleIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import { ACTIONS } from "../action";
-import { CircleCheckIcon, CircleIcon } from "lucide-react";
 import type { Card } from "../types";
 
 export function ToggleCardCompletion({
@@ -12,31 +12,10 @@ export function ToggleCardCompletion({
   isPreview: boolean;
 }) {
   const fetcher = useFetcher();
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const [pending, pendingSet] = useState<boolean | null>(null);
-  const [prevFetcherState, prevFetcherStateSet] = useState(fetcher.state);
-
-  const Comp = isPreview ? "span" : "button";
-  const optimisticCompleted = pending ?? card.completed;
-
-  if (prevFetcherState !== fetcher.state) {
-    prevFetcherStateSet(fetcher.state);
-    if (fetcher.state === "idle" && pending !== null) {
-      pendingSet(null);
-    }
-  }
-
-  function handleClick() {
-    const next = !optimisticCompleted;
-    pendingSet(next);
-
-    clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => {
-      if (next === card.completed) {
-        pendingSet(null);
-        return;
-      }
-
+  const { set: setCompleted, value: completed } = useDebouncedToggle({
+    isIdle: fetcher.state === "idle",
+    value: card.completed,
+    onCommit(next) {
       const formData = new FormData();
 
       formData.append("action", ACTIONS.TOGGLE_CARD_COMPLETION);
@@ -44,10 +23,11 @@ export function ToggleCardCompletion({
       formData.append("completed", String(next));
 
       void fetcher.submit(formData, { method: "POST" });
-    }, 400);
-  }
+    },
+  });
 
-  useEffect(() => () => clearTimeout(timeoutRef.current), []);
+  const Comp = isPreview ? "span" : "button";
+
   return (
     <Comp
       className={
@@ -56,14 +36,64 @@ export function ToggleCardCompletion({
           : ""
       }
       {...(!isPreview && {
-        title: optimisticCompleted ? "Mark as incomplete" : "Mark as complete",
-        onClick: handleClick,
+        type: "button" as const,
+        title: completed ? "Mark as incomplete" : "Mark as complete",
+        "aria-pressed": completed,
+        "aria-label": completed ? "Mark as incomplete" : "Mark as complete",
+        onClick: () => setCompleted(),
       })}>
-      {optimisticCompleted ? (
+      {completed ? (
         <CircleCheckIcon width={16} height={16} />
       ) : (
         <CircleIcon width={16} height={16} />
       )}
     </Comp>
   );
+}
+
+function useDebouncedToggle({
+  delay = 400,
+  isIdle,
+  value,
+  onCommit,
+}: {
+  delay?: number;
+  isIdle: boolean;
+  value: boolean;
+  onCommit: (next: boolean) => void;
+}) {
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const valueRef = useRef(value);
+  const [didSubmit, didSubmitSet] = useState(false);
+  const [pending, pendingSet] = useState<boolean | null>(null);
+
+  const optimisticValue =
+    isIdle && didSubmit && pending !== null && pending !== value
+      ? value
+      : (pending ?? value);
+
+  function set() {
+    const next = !optimisticValue;
+    pendingSet(next);
+    didSubmitSet(false);
+
+    clearTimeout(timeoutRef.current);
+
+    timeoutRef.current = setTimeout(() => {
+      if (next === valueRef.current) {
+        pendingSet(null);
+        return;
+      }
+      didSubmitSet(true);
+      onCommit(next);
+    }, delay);
+  }
+
+  useEffect(() => {
+    valueRef.current = value;
+  }, [value]);
+
+  useEffect(() => () => clearTimeout(timeoutRef.current), []);
+
+  return { set, value: optimisticValue };
 }
