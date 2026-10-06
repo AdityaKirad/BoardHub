@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ACTIONS } from "../action";
-import type { WithoutAction } from ".";
+import { booleanSchema, type WithoutAction } from "./shared";
 
 const archiveList = z.object({
   action: z.literal(ACTIONS.ARCHIVE_LIST),
@@ -32,6 +32,7 @@ const moveList = z.object({
 const toggleCollapseList = z.object({
   action: z.literal(ACTIONS.TOGGLE_COLLAPSE_LIST),
   id: z.string(),
+  collapsed: booleanSchema,
 });
 
 const togglePinList = z.object({

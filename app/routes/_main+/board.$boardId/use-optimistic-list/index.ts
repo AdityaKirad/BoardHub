@@ -1,6 +1,14 @@
 import { useFetchers, useParams } from "react-router";
+import type { z } from "zod";
 import { ACTIONS } from "../action";
+import { schema } from "../schema";
 import type { Lists } from "../types";
+import {
+  archiveAllCardInList,
+  createCard,
+  moveCard,
+  moveCardInThisList,
+} from "./card-actions";
 import {
   archiveList,
   copyList,
@@ -9,14 +17,6 @@ import {
   toggleCollapseList,
   togglePinList,
 } from "./list-action";
-import {
-  archiveAllCardInList,
-  createCard,
-  moveCard,
-  moveCardInThisList,
-} from "./card-actions";
-import { schema } from "../schema";
-import type { z } from "zod";
 
 export function useOptimisticLists(lists: Lists) {
   const fetchers = useFetchers();
@@ -73,7 +73,7 @@ function applyOptimisticAction(
     case ACTIONS.MOVE_LIST:
       return moveList(lists, { ...data, currentBoardId: boardId });
     case ACTIONS.TOGGLE_COLLAPSE_LIST:
-      return toggleCollapseList(lists, { id: data.id });
+      return toggleCollapseList(lists, data);
     case ACTIONS.TOGGLE_PIN_LIST:
       return togglePinList(lists, { id: data.id });
     default:

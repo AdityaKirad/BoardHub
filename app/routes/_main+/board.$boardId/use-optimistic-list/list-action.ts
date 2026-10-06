@@ -47,10 +47,10 @@ export const moveList = (
     ? lists.filter((list) => list.id !== id)
     : lists.map((list) => (list.id === id ? { ...list, position } : list));
 
-export const toggleCollapseList = (lists: Lists, { id }: ToggleCollapseList) =>
-  lists.map((list) =>
-    list.id === id ? { ...list, collapsed: !list.collapsed } : list,
-  );
+export const toggleCollapseList = (
+  lists: Lists,
+  { collapsed, id }: ToggleCollapseList,
+) => lists.map((list) => (list.id === id ? { ...list, collapsed } : list));
 
 export const togglePinList = (lists: Lists, { id }: TogglePinList) =>
   lists.map((list) =>

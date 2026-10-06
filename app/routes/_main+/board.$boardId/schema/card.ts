@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ACTIONS } from "../action";
-import type { WithoutAction } from ".";
+import { booleanSchema, type WithoutAction } from "./shared";
 
 const archiveAllCardInList = z.object({
   action: z.literal(ACTIONS.ARCHIVE_ALL_CARD_IN_LIST),
@@ -43,17 +43,7 @@ const sortList = z.object({
 const toggleCardCompletion = z.object({
   action: z.literal(ACTIONS.TOGGLE_CARD_COMPLETION),
   id: z.string(),
-  completed: z.preprocess((val) => {
-    if (typeof val === "string") {
-      if (val === "true") {
-        return true;
-      }
-      if (val === "false") {
-        return false;
-      }
-      return val;
-    }
-  }, z.boolean()),
+  completed: booleanSchema,
 });
 
 const updateCardTitle = z.object({

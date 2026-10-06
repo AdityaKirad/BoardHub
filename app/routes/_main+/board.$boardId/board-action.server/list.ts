@@ -1,6 +1,6 @@
-import { and, eq, not } from "drizzle-orm";
 import { db } from "~/.server/db";
 import { board, card, list } from "~/.server/db/schema/workspace";
+import { and, eq, not } from "drizzle-orm";
 import type {
   ArchiveList,
   CopyList,
@@ -107,11 +107,11 @@ export const handleMoveList = (userId: string, { id, ...moveData }: MoveList) =>
 
 export const handleToggleCollapseList = (
   userId: string,
-  { id }: ToggleCollapseList,
+  { id, collapsed }: ToggleCollapseList,
 ) =>
   db
     .update(list)
-    .set({ collapsed: not(list.collapsed) })
+    .set({ collapsed })
     .where(and(eq(list.id, id), listBelongsToUser(userId)));
 
 export const handleTogglePinList = (userId: string, { id }: TogglePinList) =>

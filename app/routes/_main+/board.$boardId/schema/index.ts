@@ -1,7 +1,7 @@
 import { z } from "zod";
+import { ACTIONS } from "../action";
 import { cardSchemas } from "./card";
 import { listSchemas } from "./list";
-import { ACTIONS } from "../action";
 
 export const schema = z.discriminatedUnion("action", [
   ...listSchemas,
@@ -11,5 +11,3 @@ export const schema = z.discriminatedUnion("action", [
     title: z.string(),
   }),
 ]);
-
-export type WithoutAction<T> = Omit<T, "action">;

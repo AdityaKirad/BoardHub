@@ -13,10 +13,11 @@ export function ListHeader({
   totalCards: number;
 }) {
   const { list } = useListContext();
+
   return (
     <div
       className={cn("bg-card flex items-center gap-1 px-2 pt-2", {
-        "flex-col": list.collapsed,
+        "flex-col pb-2": list.collapsed,
       })}
       ref={ref}>
       <ListTitle />
