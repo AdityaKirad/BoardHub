@@ -7,6 +7,12 @@ const archiveList = z.object({
   id: z.string(),
 });
 
+const changeListBackground = z.object({
+  action: z.literal(ACTIONS.CHANGE_LIST_BACKGROUND),
+  id: z.string(),
+  color: z.string(),
+});
+
 const copyList = z.object({
   action: z.literal(ACTIONS.COPY_LIST),
   id: z.string(),
@@ -48,6 +54,7 @@ const updateListTitle = z.object({
 
 export const listSchemas = [
   archiveList,
+  changeListBackground,
   copyList,
   createList,
   moveList,
@@ -57,6 +64,9 @@ export const listSchemas = [
 ] as const;
 
 export type ArchiveList = WithoutAction<z.infer<typeof archiveList>>;
+export type ChangeListBackground = WithoutAction<
+  z.infer<typeof changeListBackground>
+>;
 export type CopyList = WithoutAction<z.infer<typeof copyList>>;
 export type CreateList = WithoutAction<z.infer<typeof createList>>;
 export type MoveList = WithoutAction<z.infer<typeof moveList>>;

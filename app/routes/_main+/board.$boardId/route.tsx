@@ -1,14 +1,14 @@
 import { db } from "~/.server/db";
 import { requireUser } from "~/.server/session";
 import { List } from "~/routes/_main+/board.$boardId/list";
-import { useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import { redirect } from "react-router";
 import type { Route } from "./+types/route";
+import { BoardContextProvider } from "./board-context";
 import { BoardTitle } from "./board-title";
 import { CreateList } from "./create-list";
-import { BoardContextProvider } from "./board-context";
-import { useOptimisticLists } from "./use-optimistic-list";
 import { useBoardDnd } from "./use-board-dnd";
+import { useOptimisticLists } from "./use-optimistic-list";
 
 export { action } from "./board-action.server";
 
@@ -67,9 +67,29 @@ export default function Page({
   loaderData: { board, boards },
 }: Route.ComponentProps) {
   let lists = board.lists.filter((list) => !list.archived);
+  const [optimisticColors, optimisticColorsSet] = useState<
+    Record<string, string>
+  >({});
+
+  const setOptimisticColor = useCallback(
+    (listId: string, color: string | null) => {
+      optimisticColorsSet((current) => {
+        if (color === null) {
+          if (!Object.hasOwn(current, listId)) return current;
+          const next = { ...current };
+          delete next[listId];
+          return next;
+        }
+        return { ...current, [listId]: color };
+      });
+    },
+    [],
+  );
 
   const scrollAreaRef = useRef<React.ComponentRef<"ul">>(null);
-  lists = useOptimisticLists(lists).filter((list) => !list.archived);
+  lists = useOptimisticLists(lists, optimisticColors).filter(
+    (list) => !list.archived,
+  );
 
   const totalPinnedLists = lists.filter((list) => list.pinned).length;
 
@@ -88,14 +108,20 @@ export default function Page({
           className="relative flex flex-1 overflow-x-auto overflow-y-hidden px-2 pt-2 pb-16"
           ref={scrollAreaRef}>
           <BoardContextProvider value={{ boards, lists }}>
-            {lists.map((list, index) => (
-              <List
-                key={list.id}
-                index={index}
-                list={list}
-                nextListPosition={lists[index + 1]?.position}
-              />
-            ))}
+            {lists.map((list, index) => {
+              const onOptimisticColorChange = (color: string | null) =>
+                setOptimisticColor(list.id, color);
+
+              return (
+                <List
+                  key={list.id}
+                  index={index}
+                  list={list}
+                  onOptimisticColorChange={onOptimisticColorChange}
+                  nextListPosition={lists[index + 1]?.position}
+                />
+              );
+            })}
           </BoardContextProvider>
 
           {Boolean(totalPinnedLists) && (

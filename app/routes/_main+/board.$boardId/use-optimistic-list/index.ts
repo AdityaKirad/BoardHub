@@ -11,6 +11,7 @@ import {
 } from "./card-actions";
 import {
   archiveList,
+  changeListBackground,
   copyList,
   createList,
   moveList,
@@ -18,7 +19,10 @@ import {
   togglePinList,
 } from "./list-action";
 
-export function useOptimisticLists(lists: Lists) {
+export function useOptimisticLists(
+  lists: Lists,
+  optimisticColors: Record<string, string> = {},
+) {
   const fetchers = useFetchers();
   const params = useParams();
 
@@ -42,6 +46,10 @@ export function useOptimisticLists(lists: Lists) {
   }
 
   return lists
+    .map((list) => {
+      const color = optimisticColors[list.id];
+      return color === undefined ? list : { ...list, color };
+    })
     .map((list) => ({
       ...list,
       cards: [...list.cards].sort((a, b) =>
@@ -60,6 +68,8 @@ function applyOptimisticAction(
       return archiveAllCardInList(lists, data);
     case ACTIONS.ARCHIVE_LIST:
       return archiveList(lists, data);
+    case ACTIONS.CHANGE_LIST_BACKGROUND:
+      return changeListBackground(lists, data);
     case ACTIONS.COPY_LIST:
       return copyList(lists, data);
     case ACTIONS.CREATE_CARD:

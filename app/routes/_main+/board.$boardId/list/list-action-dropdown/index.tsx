@@ -15,6 +15,7 @@ import { CopyListFormContent } from "./copy-list-form-content";
 import { MoveListFormContent } from "./move-list-form-content";
 import { MoveAllCardsInThisFormContent } from "./move-all-cards-in-this-form-content";
 import { SortByFormContent } from "./sort-by-form-content";
+import { ListColorAccordion } from "./list-color-accordion";
 
 type DROPDOWN_ACTIONS = keyof Pick<
   typeof ACTIONS,
@@ -180,6 +181,8 @@ export function ListActionDropdown() {
               onSelect={submitListAction(ACTIONS.TOGGLE_PIN_LIST)}>
               {list.pinned ? "Unpin list" : "Pin list"}
             </DropdownMenuItem>
+            <DropdownMenuSeparator className="mx-2" />
+            <ListColorAccordion />
             <DropdownMenuSeparator className="mx-2" />
             <DropdownMenuItem onSelect={submitListAction(ACTIONS.ARCHIVE_LIST)}>
               Archive this list

@@ -2,14 +2,14 @@ import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { PlusIcon } from "lucide-react";
 import { Fragment } from "react";
+import { createPortal } from "react-dom";
 import { CardPlaceholder, ListItem } from "../list-item";
 import { CreateCard } from "../list-item/create-card";
-import { CreateCardButton } from "./create-card-button";
-import { ListHeader } from "./list-header";
-import { useCreateCard, useListDnd, type ListState } from "./hooks";
-import { createPortal } from "react-dom";
-import { ListContextProvider } from "./list-context";
 import type { List } from "../types";
+import { CreateCardButton } from "./create-card-button";
+import { useCreateCard, useListDnd, type ListState } from "./hooks";
+import { ListContextProvider } from "./list-context";
+import { ListHeader } from "./list-header";
 
 function ListDisplay({
   cardContainerRef,
@@ -17,10 +17,12 @@ function ListDisplay({
   listRef,
   index,
   list,
+  onOptimisticColorChange,
   nextListPosition,
   state,
 }: {
   list: List;
+  onOptimisticColorChange: (color: string | null) => void;
   state: ListState;
   index?: number;
   cardContainerRef?: React.RefObject<React.ComponentRef<"ul"> | null>;
@@ -45,7 +47,13 @@ function ListDisplay({
         <ListPlaceholder rect={state.rect} />
       )}
       <ListContextProvider
-        value={{ cards, list, nextListPosition, openCreateCard }}>
+        value={{
+          cards,
+          list,
+          nextListPosition,
+          openCreateCard,
+          onOptimisticColorChange,
+        }}>
         <li
           className="shrink-0 px-1 first:pl-0"
           ref={listRef}
@@ -54,13 +62,16 @@ function ListDisplay({
           }}>
           <div
             className={cn(
-              "bg-card relative flex max-h-full flex-col overflow-hidden rounded-lg",
+              "relative flex max-h-full flex-col overflow-hidden rounded-lg",
               list.collapsed ? "w-fit" : "w-64",
               {
                 "outline-2 outline-offset-2 outline-white":
                   state.type === "is-card-over",
               },
-            )}>
+            )}
+            style={{
+              backgroundColor: list.color || "var(--list-color-black)",
+            }}>
             <ListHeader ref={headerRef} totalCards={cards.length} />
             <ul
               className={cn(
@@ -107,7 +118,7 @@ function ListDisplay({
             </ul>
 
             {createIndex === null && (
-              <div className={cn("bg-card p-2", { hidden: list.collapsed })}>
+              <div className={cn("p-2", { hidden: list.collapsed })}>
                 <Button
                   className="w-full justify-start rounded-lg"
                   variant="ghost"
@@ -129,10 +140,12 @@ function ListDisplay({
 export function List({
   index,
   list,
+  onOptimisticColorChange,
   nextListPosition,
 }: {
   index: number;
   list: List;
+  onOptimisticColorChange: (color: string | null) => void;
   nextListPosition: string | undefined;
 }) {
   const { cardContainerRef, listRef, headerRef, state } = useListDnd({
@@ -147,12 +160,17 @@ export function List({
         listRef={listRef}
         index={index}
         list={list}
+        onOptimisticColorChange={onOptimisticColorChange}
         nextListPosition={nextListPosition}
         state={state}
       />
       {state.type === "preview" &&
         createPortal(
-          <ListDisplay list={list} state={state} />,
+          <ListDisplay
+            list={list}
+            state={state}
+            onOptimisticColorChange={onOptimisticColorChange}
+          />,
           state.container,
         )}
     </>

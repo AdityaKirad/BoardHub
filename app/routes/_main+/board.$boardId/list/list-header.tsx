@@ -16,9 +16,12 @@ export function ListHeader({
 
   return (
     <div
-      className={cn("bg-card flex items-center gap-1 px-2 pt-2", {
-        "flex-col pb-2": list.collapsed,
-      })}
+      className={cn(
+        "flex items-center gap-1 bg-inherit px-2 pt-2",
+        {
+          "flex-col pb-2": list.collapsed,
+        },
+      )}
       ref={ref}>
       <ListTitle />
       <span className={list.collapsed ? "order-2" : ""}>{totalCards}</span>

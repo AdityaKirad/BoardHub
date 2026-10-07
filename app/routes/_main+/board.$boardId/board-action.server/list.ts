@@ -3,6 +3,7 @@ import { board, card, list } from "~/.server/db/schema/workspace";
 import { and, eq, not } from "drizzle-orm";
 import type {
   ArchiveList,
+  ChangeListBackground,
   CopyList,
   CreateList,
   MoveList,
@@ -16,6 +17,15 @@ export const handleArchiveList = (userId: string, { id }: ArchiveList) =>
   db
     .update(list)
     .set({ archived: true })
+    .where(and(eq(list.id, id), listBelongsToUser(userId)));
+
+export const handleChangeListBackground = (
+  userId: string,
+  { id, color }: ChangeListBackground,
+) =>
+  db
+    .update(list)
+    .set({ color })
     .where(and(eq(list.id, id), listBelongsToUser(userId)));
 
 export const handleCopyList = (

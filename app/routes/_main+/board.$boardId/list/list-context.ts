@@ -6,6 +6,7 @@ export const ListContext = createContext<{
   cards: List["cards"];
   nextListPosition: string | undefined;
   openCreateCard: (index: number) => void;
+  onOptimisticColorChange: (color: string | null) => void;
 } | null>(null);
 
 export function useListContext() {

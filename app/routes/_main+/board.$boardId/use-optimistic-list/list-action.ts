@@ -1,5 +1,6 @@
 import type {
   ArchiveList,
+  ChangeListBackground,
   CopyList,
   CreateList,
   MoveList,
@@ -10,6 +11,11 @@ import type { Lists } from "../types";
 
 export const archiveList = (lists: Lists, { id }: ArchiveList) =>
   lists.map((list) => (list.id === id ? { ...list, archived: true } : list));
+
+export const changeListBackground = (
+  lists: Lists,
+  { color, id }: ChangeListBackground,
+) => lists.map((list) => (list.id === id ? { ...list, color } : list));
 
 export const createList = (lists: Lists, listData: CreateList) => [
   ...lists,

@@ -3,6 +3,7 @@ import type { Route } from "../+types/route";
 import { schema } from "../schema";
 import {
   handleArchiveList,
+  handleChangeListBackground,
   handleCopyList,
   handleCreateList,
   handleMoveList,
@@ -45,6 +46,9 @@ export async function action({ params, request }: Route.ActionArgs) {
       break;
     case "archive-list":
       await handleArchiveList(userId, submission.value);
+      break;
+    case "change-list-background":
+      await handleChangeListBackground(userId, submission.value);
       break;
     case "copy-list":
       await handleCopyList(userId, submission.value);

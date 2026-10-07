@@ -51,6 +51,16 @@
   --destructive-foreground: oklch(1 0 0);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
+  --list-color-green: #216e4e;
+  --list-color-mustard: #7f5f01;
+  --list-color-orange: #9e4c00;
+  --list-color-red: #ae2e24;
+  --list-color-purple: #803fa5;
+  --list-color-blue: #1558bc;
+  --list-color-teal: #206a83;
+  --list-color-olive: #4c6b1f;
+  --list-color-pink: #943d73;
+  --list-color-black: #63666b;
   --radius: 0.625rem;
 }
 
